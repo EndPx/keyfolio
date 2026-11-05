@@ -53,3 +53,21 @@ Light analytical workspace, navy text, cobalt actions, restrained financial colo
 Date: 2026-11-06. Owner: user. Status: required; runtime proof pending.
 
 Use DeepSeek Harness with GATER API and model DeepSeek Flash, through Orca. Configuration inspection must prove endpoint route/model without exposing credentials. Neither a model's self-description nor a successful CLI version check proves the task/result/review loop. If the CLI profile differs from the connected desktop profile, report/resolve the exact mismatch; do not substitute official DeepSeek, ZCode or another model.
+
+## KF-D009 — Reject fractional atomic amounts before database coercion
+
+Date: 2026-11-06. Owner: user/Codex. Status: binding.
+
+Atomic amounts cross API boundaries only as canonical decimal integer strings matching `^(0|[1-9][0-9]*)$`, with a checked u128 upper bound. JSON number1.5 and string `1.5` must both fail. No rounding, truncation, exponent, signs, whitespace or implicit coercion is allowed. Use a PostgreSQL TEXT domain with the same digit/length/range checks rather than NUMERIC(p,0), whose input coercion can round before a CHECK sees the value. Enforce positivity separately for prices and preserve zero for valid balances. Signed ledger deltas use a separately validated signed canonical integer representation, never an unsigned domain with a hidden negative conversion.
+
+Database acceptance must insert fractional inputs directly as well as through the API, and demonstrate failure without changing an existing value. Cover0,1,u128 maximum, overflow,1.5,'1.5', leading zeros, negatives and exponents. Application parameterization passes strings; numeric literals cannot be rounded into validity. This is a persistence amendment to database.md, not a change to money semantics.
+
+## KF-D010 — Termination cutoff is contract execution time
+
+Date: 2026-11-06. Owner: user. Status: binding local baseline.
+
+For local/sandbox contract implementation, cutoff_ms is the checked block timestamp of the transaction in which the contract accepts termination. A caller cannot supply an earlier outage timestamp as the financial cutoff. The monitor's24h outage evidence controls eligibility to request termination, not retrospective vesting. Consent withdrawal requests termination immediately, but financial cutoff is still when the contract accepts that transaction.
+
+Freeze tranche earnings at cutoff_ms, subject to each tranche's term. Already vested funds before cutoff remain trader entitlement; refund is the unvested remainder at cutoff, payable to the current NFT owner under transfer/refund locking rules. Example:30-day term priced300 units; outage starts at day10, accepted termination at day11 -> earned110/refund190 (ignoring atomic rounding), not earned100/refund200. Delay until term end can leave zero refundable remainder. Previously withdrawn vested amounts must never be promised again as refunds.
+
+Disclose that this default does not automatically compensate the interval from outage start to accepted termination and depends on monitor responsiveness. Retroactive refunds require a separately funded and approved policy; do not backdate cutoff or create unfunded obligations. Public paid launch remains subject to KF-D004 user approval. Test supplied backdating rejection, repeated termination idempotency, cutoff at start/mid/end, delayed monitor, pending payouts and solvency.

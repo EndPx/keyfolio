@@ -61,7 +61,7 @@ Only a confirmed supported swap with trusted source economic time can enter copy
 
 ## Subscription accounting
 
-Contract retains unvested FT liabilities, separately from native storage deposits. Each purchase/renewal creates an immutable tranche. Reserve asynchronous payout before external FT call; private callback finalizes success or restores credit once. Service monitor may attest outage/consent withdrawal under policy, but cannot set payout recipient/amount or access trading funds. Public deployment awaits financial/auth acceptance and missing user authority.
+Contract retains unvested FT liabilities, separately from native storage deposits. Each purchase/renewal creates an immutable tranche. Reserve asynchronous payout before external FT call; private callback finalizes success or restores credit once. Service monitor may attest outage/consent withdrawal under policy, but cannot set payout recipient/amount or access trading funds. Financial termination cutoff is the block timestamp when the contract accepts the termination transaction (KF-D010), not the earlier outage start. Earnings/refunds freeze there; no automatic retroactive outage compensation or backdated unfunded refund. Public deployment awaits financial/auth acceptance and missing user authority.
 
 ## Environment and operational rules
 
