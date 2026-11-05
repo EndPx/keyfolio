@@ -27,7 +27,7 @@ Credential-resolution correction is closed: saved `refs` take precedence over en
 
 ## External gates
 
-- G01: account history invite/access, authorized source account ownership proof, data redistribution permission, coverage of outside-Keyfolio activity, complete monetary events and trusted execution timestamps. No authorized source session is present in this repo. Safe unauthenticated GET probes observed balances401/history403; see docs/evidence/KF-01/initial-capability-report.md. These do not establish account access.
+- G01: user confirms no selected trader test account and no history invitation/access confirmation. [Official access research](evidence/KF-01/access-research.md) separates partner identity, owner session and unconfirmed invitation granularity/coverage. [Unsent request draft](provider-access-request.md) asks for invitation, environment, complete account coverage and subscriber-use rights. No repeated unauthenticated probes or provider messages. Initial reachability evidence is historical only, not authenticated access.
 - G02: actual subscription FT/network/decimals/storage behavior unknown.
 - G03: historical price provider not selected.
 - G04: dependency versions and real wallet signing path not accepted.
@@ -42,6 +42,6 @@ Required future configuration names (not values): DATABASE_URL, KEYFOLIO_MODE, N
 2. DONE:C00 accepted after actual GATER/DeepSeek Flash result and independent review. Latest accepted evidence points to the reviewed fixture, not just a launch receipt.
 3. KF-01 remains blocked on an authorized account signing route, User-Session/history invitation, and subscriber data reuse permission; do not repeat no-auth probes as access verification. Existing report records the known limits.
 4. Receive/review KF-02a source, build and actual PostgreSQL-engine amount-test evidence including1.5; send revisions via its dispatch mailbox, accept/commit/push only reviewed files. No full KF-02 claim from this first slice. Next KF-02b completes missing minimal web/contract test layout and API/interface freeze before KF-05/KF-06. KF-D009/KF-D010 govern amounts/termination cutoff.
-5. After each accepted task choose the next ready task automatically. KF-01 access clarification is pending asynchronously: selected public trader NEAR account ID and history invitation/access status, with wallet signing kept under user control. Do not request keys or tokens in chat. No new unauthenticated probes.
+5. After each accepted task choose the next ready task automatically. KF-01 next action is user review/sending or explicit authorization of the unsent provider inquiry; no need to select/fund B before the provider identifies a suitable environment. Provider permission and actual account access remain separate acceptance requirements. Wallet signing stays with user; no keys/tokens in chat.
 
 Target:14 November2026 23:59 WIB internal. Date is not a live-readiness guarantee. Risk: account-wide live ingestion/copy acceptance cannot be forecast until history access, source permissions and authorized account testing are available. Continue independent local work; do not imply that local tests resolve that risk. Next checkpoint is KF-02a source/test review.
