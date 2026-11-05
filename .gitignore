@@ -1,0 +1,17 @@
+node_modules/
+.next/
+dist/
+coverage/
+target/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.deploy-local/
+deliverables/
+playwright-report/
+test-results/
+*.log
+.DS_Store
+Thumbs.db

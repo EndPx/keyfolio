@@ -1,0 +1,11 @@
+{
+  "task": "KF-00 executor readiness",
+  "kind": "synthetic nonfinancial fixture",
+  "records": [
+    { "id": "alpha", "revision": 1, "value": "7" },
+    { "id": "beta", "revision": 1, "value": "11" },
+    { "id": "alpha", "revision": 2, "value": "13" },
+    { "id": "beta", "revision": 1, "value": "11" },
+    { "id": "gamma", "revision": 1, "value": "19" }
+  ]
+}
