@@ -10,7 +10,7 @@ Establish public repo, immutable handoff, binding decisions, design system, arch
 |---|---|---|
 | KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result/report, independent Codex arithmetic/hash assertions and settled worker_done reviewed |
 | KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
-| KF-02 | READY | KF-02a implementation brief ready; next dispatch builds runnable API/worker/domain plus real PostgreSQL-engine amount tests; full KF-02 still pending |
+| KF-02 | RUNNING | KF-02a dispatched to DeepSeek Harness/Flash through Orca; ready/input accepted; source implementation and test results pending review |
 | KF-03..KF-11 | TODO | No implementation acceptance |
 
 Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
