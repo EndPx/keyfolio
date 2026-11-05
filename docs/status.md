@@ -8,12 +8,14 @@ Establish public repo, immutable handoff, binding decisions, design system, arch
 
 | Task | State | Evidence / limit |
 |---|---|---|
-| KF-00 | RUNNING | Public bootstrap published; first launch failed before task execution, TUI repaired; saved GATER credential reference confirmed, same Task retry next; C00 NOT_RUN |
+| KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result/report, independent Codex arithmetic/hash assertions and settled worker_done reviewed |
 | KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
-| KF-02 | TODO | Architecture/logical schema/design contracts selected; source scaffolding waits for required executor proof |
+| KF-02 | READY | KF-02a implementation brief ready; next dispatch builds runnable API/worker/domain plus real PostgreSQL-engine amount tests; full KF-02 still pending |
 | KF-03..KF-11 | TODO | No implementation acceptance |
 
-Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and its terminal was released with confirmed closure; retrying the same Task after TUI repair. Local dispatch/run/task recovery IDs are in ignored `.deploy-local/orca-runtime.md`. Sanitized evidence: [executor attempt01](evidence/KF-00/executor-attempt-01.md), [bootstrap review](evidence/KF-00/bootstrap-review.md), [source capability report](evidence/KF-01/initial-capability-report.md). No funds/deployments/third-party messages performed.
+Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
+
+KF-02a ownership: DeepSeek gets root workspace/lockfile, packages/domain, packages/api-contract, apps/api, apps/worker, initial API-owned migration/test scripts and KF-02 evidence. Codex retains status/decisions/design docs and acceptance. No concurrent migration/lockfile writer. Exact dispatch references are in ignored `.deploy-local/orca-runtime.md`.
 
 ## Runtime inventory
 
@@ -37,8 +39,8 @@ Required future configuration names (not values): DATABASE_URL, KEYFOLIO_MODE, N
 ## Next bounded outcomes
 
 1. DONE: public repo, reviewed documentation/asset bootstrap, byte-identical baseline and GitHub main verified.
-2. Retry the same KF-00 task on actual GATER/DeepSeek Flash with the existing saved credentials, review result independently, and retain dispatch evidence.
-3. Produce KF-01 field-by-field capability report plus safe no-auth reachability evidence; request only missing authorized access.
-4. Delegate minimal runnable KF-02 after C00, with frozen interface/schema and one migration writer.
+2. DONE:C00 accepted after actual GATER/DeepSeek Flash result and independent review. Latest accepted evidence points to the reviewed fixture, not just a launch receipt.
+3. KF-01 remains blocked on an authorized account signing route, User-Session/history invitation, and subscriber data reuse permission; do not repeat no-auth probes as access verification. Existing report records the known limits.
+4. Prepared KF-02a bounded implementation brief: runnable API/worker/domain/contracts, strict API+PostgreSQL TEXT-domain amount checks including1.5, explicit environment modes. Delegate immediately after C00 review; no full KF-02 completion claim from this first slice. KF-D009/KF-D010 govern amounts and termination cutoff.
 
 Target:14 November2026 23:59 WIB internal. Date is not a live-readiness guarantee. Next decision checkpoint: executor proof and source capability result; escalate source-history gate promptly rather than inventing app-only coverage.

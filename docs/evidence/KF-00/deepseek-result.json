@@ -1,0 +1,34 @@
+{
+  "task": "KF-00 executor readiness",
+  "kind": "synthetic nonfinancial fixture",
+  "input": {
+    "file": "docs/evidence/KF-00/fixture.json",
+    "sha256": "9D0F3C5C34F256E84BA42EA6640DDDBA6C43C142A4E43B5CFC5E550423B06837",
+    "bytes": 366
+  },
+  "algorithm": "deduplicate exact repeated revisions (id+revision+value), then keep highest revision per id, sort retained records by id ascending, sum latest values with exact integer arithmetic",
+  "result": {
+    "duplicate_count": 1,
+    "retained_count": 3,
+    "total": 43,
+    "retained_records": [
+      { "id": "alpha", "revision": 2, "value": "13" },
+      { "id": "beta", "revision": 1, "value": "11" },
+      { "id": "gamma", "revision": 1, "value": "19" }
+    ]
+  },
+  "model": {
+    "provider": "gater",
+    "harness": "DeepSeek Harness",
+    "model_id": "deepseek-v4.1-flash-1017-v2",
+    "model_name": "DeepSeek Flash",
+    "host": "api.gater.ai.id"
+  },
+  "evidence": {
+    "hash_command": "Get-FileHash -Algorithm SHA256 -LiteralPath 'docs/evidence/KF-00/fixture.json'",
+    "hash_exit": 0,
+    "compute_command": "PowerShell: dedup exact revisions -> highest revision per id -> sort by id -> BigInteger sum",
+    "compute_exit": 0,
+    "generated_utc": "2026-11-05T20:25:04Z"
+  }
+}
