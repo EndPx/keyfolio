@@ -8,18 +8,20 @@ Establish public repo, immutable handoff, binding decisions, design system, arch
 
 | Task | State | Evidence / limit |
 |---|---|---|
-| KF-00 | RUNNING | Guides/runtime inspected; documentation bootstrap in progress; executor loop NOT_RUN |
-| KF-01 | NOT_RUN | Initial official-doc review below; authenticated probes NOT_RUN |
-| KF-02 | TODO | Architecture/logical schema selected; source scaffolding not implemented |
+| KF-00 | BLOCKED_EXTERNAL | Public bootstrap910d7b2; first actual Orca launch failed before task execution; runtime repaired, CLI GATER credential source pending; C00 NOT_RUN |
+| KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
+| KF-02 | TODO | Architecture/logical schema/design contracts selected; source scaffolding waits for required executor proof |
 | KF-03..KF-11 | TODO | No implementation acceptance |
 
-Codex owns docs, schema/interface decisions, review and integration. No implementation worker active yet. Dispatch IDs will be recorded in local runtime evidence and a sanitized reference here. No funds/deployments/third-party messages performed.
+Codex owns docs, schema/interface decisions, review and integration. No active implementation worker. Attempt01 failed at readiness and its terminal was released with confirmed closure; local dispatch/run/task recovery IDs are in ignored `.deploy-local/orca-runtime.md`. Sanitized evidence: [executor attempt01](evidence/KF-00/executor-attempt-01.md), [bootstrap review](evidence/KF-00/bootstrap-review.md), [source capability report](evidence/KF-01/initial-capability-report.md). No funds/deployments/third-party messages performed.
 
 ## Runtime inventory
 
 Verified locally: Node24.18.0; pnpm10.21.0; rustc1.99.0; cargo1.99.0; GitHub CLI authenticated as EndPx. DeepSeek Harness0.2.1-rc.5 is installed. Desktop configuration and user screenshot identify `gater/deepseek-v4.1-flash-1017-v2`, endpoint host api.gater.ai.id, credential environment name GATER_API_KEY. CLI dsh-tui originally selected the official provider; its two relevant model/provider patch entries have now been aligned to the existing desktop configuration, preserving an ignored local backup. Composed CLI routing verified, authenticated generation still NOT_RUN. No credentials displayed or committed.
 
-A dsh-tui help boot reported missing @deepseek-ai/dsh-hooks-claude-code. The supported plugin installer rejected version0.0.1-rc.5 as incompatible with Harness0.2.1-rc.5; nothing installed and no risk exemption applied. Actual Orca structured/terminal dispatch will determine whether this blocks the selected runtime. Do not infer failure/success from the help boot alone. Multiple Orca workspace records share this checkout; inspect and use an exact selector.
+A dsh-tui help boot reported missing @deepseek-ai/dsh-hooks-claude-code. Initial installer attempt with its stale latest-tag0.0.1-rc.5 was rejected. Registry version discovery then found the matching0.2.1-rc.5, which installed successfully. Actual Orca launch proved its older TUI0.17.0 profile plugin incompatible; launcher and profile upgraded to0.18.0 with supported compatibility declarations. No risk exemption or Harness downgrade applied. Profile composition now includes TUI and hooks; runtime task execution still unproven. Multiple Orca workspace records share this checkout; inspected and used an exact selector.
+
+GATER_API_KEY is absent in the coordinator Process/User/Machine environments. The desktop provider references that environment name, but a successful desktop UI session does not prove CLI credential inheritance. A text-only clarification asks for the existing local credential location, never its value. Do not launch repeated workers before resolving this known prerequisite. Preserve the original failed Task and use its recorded recovery chain for a retry.
 
 ## External gates
 
@@ -34,8 +36,8 @@ Required future configuration names (not values): DATABASE_URL, KEYFOLIO_MODE, N
 
 ## Next bounded outcomes
 
-1. Publish reviewed bootstrap and record commit/remote.
-2. Prove actual GATER/DeepSeek Flash worker on a small nonfinancial fixture, review result independently, and retain dispatch evidence.
+1. DONE: public repo, reviewed documentation/asset bootstrap, byte-identical baseline and GitHub main verified.
+2. Resolve local CLI credential inheritance, then retry the same KF-00 task on actual GATER/DeepSeek Flash, review result independently, and retain dispatch evidence.
 3. Produce KF-01 field-by-field capability report plus safe no-auth reachability evidence; request only missing authorized access.
 4. Delegate minimal runnable KF-02 after C00, with frozen interface/schema and one migration writer.
 
