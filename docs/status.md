@@ -10,12 +10,12 @@ Continue the current KF-02a implementation, review/test/revise/commit/push, then
 |---|---|---|
 | KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result/report, independent Codex arithmetic/hash assertions and settled worker_done reviewed |
 | KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
-| KF-02 | CHANGES_REQUIRED | KF-02a worker completed; Codex reproduced41/41 green but independent boundary probes failed. Revision dispatched through existing worker mailbox; not accepted |
+| KF-02 | BLOCKED_EXTERNAL | KF-02a revision01 passed47/47 and key independent probes; final small revision interrupted by GATER403 ip_limit_reached. Partial source preserved; current health subset7pass/1fail; NOT ACCEPTED |
 | KF-03..KF-11 | TODO | No implementation acceptance |
 
 Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
 
-KF-02a ownership: DeepSeek gets root workspace/lockfile, packages/domain, packages/api-contract, apps/api, apps/worker, initial API-owned migration/test scripts and KF-02 evidence. Codex retains status/decisions/design docs and acceptance. No concurrent migration/lockfile writer. [Review01](evidence/KF-02/codex-review-01.md) records observed NaN copy acceptance, future-observation health, freshness/outage conflation, cross-network/provider FK insertion and migration/README/test gaps. Revision is active; original implementation remains uncommitted. Exact dispatch references are in ignored `.deploy-local/orca-runtime.md`.
+KF-02a ownership: DeepSeek owns root workspace/lockfile, packages/domain, packages/api-contract, apps/api, apps/worker, initial API-owned migration/test scripts and its evidence. Codex owns status/decisions/design docs and acceptance. No concurrent migration/lockfile writer. [Review01](evidence/KF-02/codex-review-01.md) failures were fixed and independently checked. [Review02](evidence/KF-02/codex-review-02.md) records47-pass prior-revision evidence, last24h/threshold correction and interrupted current test state. Open follow-up is errored on provider access, not completed; no worker_done received for it. Implementation remains uncommitted until final acceptance. Exact runtime IDs are in ignored local notes.
 
 ## Runtime inventory
 
