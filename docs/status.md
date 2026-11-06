@@ -10,7 +10,7 @@ Continue the current KF-02a implementation, review/test/revise/commit/push, then
 |---|---|---|
 | KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result/report, independent Codex arithmetic/hash assertions and settled worker_done reviewed |
 | KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
-| KF-02 | RUNNING | KF-02a ACCEPTED PASS_LOCAL and published319a843: clean-source install/build/typecheck and52/52 tests. KF-02b API/source interface freeze dispatched ready; minimal web/contract layout remains KF-02c |
+| KF-02 | BLOCKED_EXTERNAL | KF-02a ACCEPTED PASS_LOCAL published319a843,52/52 tests and GitHub CI success. KF-02b launched but errored GATER403 ip_limit_reached after context read; dispatch open, no completion |
 | KF-03..KF-11 | TODO | No implementation acceptance |
 
 Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
@@ -26,6 +26,8 @@ Resolved startup history: TUI0.17.0 was incompatible; upgraded to0.18.0 and matc
 Credential-resolution correction is closed: saved `refs` take precedence over environment fallback. Earlier records-only inspection missed the saved reference. C00 subsequently proved execution; no credential action is pending for GATER.
 
 ## External gates
+
+- Executor access: GATER403 ip_limit_reached recurred at KF-02b after successful KF-02a recovery/completion. Provider reports2-IP maximum. Keep the current task/dispatch; no unchanged retries, new key/model or config changes. User/provider must restore stable IP binding for the worker; cause of repeated IP allocation (network/proxy/other clients) is UNKNOWN, not diagnosed from this error. Future executor work depends on this access. GitHub CI for319a843 passed:[run42187100379](https://github.com/EndPx/keyfolio/actions/runs/42187100379).
 
 - G01: user confirms no selected trader test account and no history invitation/access confirmation. [Official access research](evidence/KF-01/access-research.md) separates partner identity, owner session and unconfirmed invitation granularity/coverage. [Unsent request draft](provider-access-request.md) asks for invitation, environment, complete account coverage and subscriber-use rights. No repeated unauthenticated probes or provider messages. Initial reachability evidence is historical only, not authenticated access.
 - G02: actual subscription FT/network/decimals/storage behavior unknown.
