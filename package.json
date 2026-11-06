@@ -1,0 +1,30 @@
+{
+  "name": "keyfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.21.0",
+  "engines": {
+    "node": ">=24.18.0 <25",
+    "pnpm": ">=10.21.0 <11"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present run build",
+    "typecheck": "pnpm -r --if-present run typecheck && tsc -p tsconfig.scripts.json",
+    "check": "pnpm build && pnpm typecheck && pnpm test:run",
+    "test": "pnpm build && pnpm test:run",
+    "test:run": "node --import tsx --test \"packages/domain/test/**/*.test.ts\" \"packages/api-contract/test/**/*.test.ts\" \"apps/api/test/**/*.test.ts\" \"apps/worker/test/**/*.test.ts\" \"scripts/*.test.ts\"",
+    "test:db": "pnpm build && node --import tsx --test \"apps/api/test/db-domain.test.ts\"",
+    "db:migrate": "tsx scripts/db-migrate.ts",
+    "db:migrate:local": "tsx scripts/db-migrate-local.ts",
+    "db:evidence": "tsx scripts/db-evidence.ts"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.15",
+    "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
+    "pg": "8.23.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
