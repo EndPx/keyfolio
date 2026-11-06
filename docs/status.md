@@ -10,7 +10,7 @@ Continue the current KF-02a implementation, review/test/revise/commit/push, then
 |---|---|---|
 | KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result/report, independent Codex arithmetic/hash assertions and settled worker_done reviewed |
 | KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
-| KF-02 | RUNNING | User reports GATER IP binding restored. Same final-revision Task reopened after Orca confirmed old terminal missing/abandoned; replacement dispatch ready. Source preserved; final results pending, NOT ACCEPTED |
+| KF-02 | CHANGES_REQUIRED | Resumed worker completed; Codex clean-source frozen install/build/typecheck and48/48 test PASS_LOCAL. Evidence generator reports expected-derived outcomes; narrow fix dispatched, acceptance pending |
 | KF-03..KF-11 | TODO | No implementation acceptance |
 
 Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
