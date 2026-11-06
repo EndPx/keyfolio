@@ -50,7 +50,7 @@ Light analytical workspace, navy text, cobalt actions, restrained financial colo
 
 ## KF-D008 — Executor route
 
-Date: 2026-11-06. Owner: user. Status: required; runtime proof pending.
+Date: 2026-11-06. Owner: user. Status: binding; C00 runtime proof accepted (see status/evidence for current provider availability).
 
 Use DeepSeek Harness with GATER API and model DeepSeek Flash, through Orca. Configuration inspection must prove endpoint route/model without exposing credentials. Neither a model's self-description nor a successful CLI version check proves the task/result/review loop. If the CLI profile differs from the connected desktop profile, report/resolve the exact mismatch; do not substitute official DeepSeek, ZCode or another model.
 
@@ -81,3 +81,13 @@ Continue KF-00 through KF-11 under the existing scope/acceptance and authorizati
 Executor remains proven DeepSeek Harness/GATER/DeepSeek Flash through Orca. Do not change/test working runtime configuration without a concrete reason. Follow Orca wake-up lifecycle; ending a coordinator turn is not a request for the user to type continue. One lockfile/migration/contract writer; independent work may proceed only with explicit disjoint ownership.
 
 Blocked upstream access does not stop independent local work and cannot be replaced with repeated unauthenticated probes, app-only scope, fabricated data or fixture fallback in LIVE. Ask only for missing access/credentials (never secret values in chat), scope/financial-right decisions, paid services, real-asset actions/deployments or unresolved product decisions. If all remaining tasks are truly externally blocked, deliver one consolidated list of completed scope, unproven scope and minimum user actions; do not mark the project complete. Internal target remains2026-11-14 23:59 WIB, with schedule risks disclosed when observed.
+
+## KF-D012 — NEAR ecosystem first
+
+Date:2026-11-06. Owner:user. Status:binding.
+
+For each material relevant need, evaluate NEAR ecosystem products/infrastructure before external alternatives. Choose based on evidenced feature coverage, network/wallet support, authentication/signing/recovery, API permissions, security/fund authority, costs, reliability and integration effort. Ecosystem affiliation alone is not evidence of capability. Do not add an integration without a concrete product function.
+
+Preserve Confidential Intents account-following, NEAR contracts and transferable access NFTs as planned. This rule does not change scope, user rights, acceptance or financial authorizations. If a NEAR option is insufficient or gated, record the exact gap and a concrete compatible alternative where one exists; scope/rights changes still require user decision. Paid services and deployments retain existing approval boundaries. No silent fixture/live substitution.
+
+Canonical material-choice matrix: [capabilities.md](capabilities.md). Each choice records official sources, observed experiment or NOT_RUN, decision and missing evidence. Update the owning row when selecting/pinning a real integration; keep runtime status in status.md. Continue independent tasks without waiting for unrelated ecosystem evaluation. Existing off-chain PostgreSQL and executor route are retained for their assigned functions; no gratuitous chain storage, oracle, bridge or agent integration.

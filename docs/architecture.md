@@ -2,6 +2,8 @@
 
 Status: implementation contract for KF-00/KF-01/KF-02, 2026-11-06. No deployed components are implied. Product authority and amendments: decisions.md and baseline file 01.
 
+Material product/infrastructure selection follows KF-D012 NEAR ecosystem first. [Capability matrix](capabilities.md) owns candidates, official sources, experiment outcomes and gaps; no extra integration is justified solely by ecosystem affiliation. Preserve existing scope/fund authority and keep documented capability separate from runtime acceptance.
+
 ## System boundaries
 
 ```mermaid

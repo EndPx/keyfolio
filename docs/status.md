@@ -4,7 +4,7 @@ Updated: 2026-11-06, Asia/Jakarta. Repository: https://github.com/EndPx/keyfolio
 
 ## Current milestone
 
-Continue the current KF-02a implementation, review/test/revise/commit/push, then automatically advance through dependency-ready tasks up to KF-11 under KF-D011. Public repo/planning bootstrap and C00 are accepted; do not restart. Source access remains a separate external gate.
+KF-02a source319a843 is accepted and published. Continue KF-02b API/source interface freeze, then minimal web/contract layout and dependency-ready tasks through KF-11 under KF-D011. Do not restart accepted work. Source access remains a separate external gate.
 
 | Task | State | Evidence / limit |
 |---|---|---|
@@ -12,6 +12,10 @@ Continue the current KF-02a implementation, review/test/revise/commit/push, then
 | KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
 | KF-02 | BLOCKED_EXTERNAL | KF-02a ACCEPTED PASS_LOCAL published319a843,52/52 tests and GitHub CI success. KF-02b launched but errored GATER403 ip_limit_reached after context read; dispatch open, no completion |
 | KF-03..KF-11 | TODO | No implementation acceptance |
+
+Latest KF-02b recovery: user-authorized same-dispatch resume advanced context reads but errored503 wrapping upstream429. Screen output truncates the nested error, so no quota category/reset time is inferred. After20s backoff one bounded same-dispatch resume was sent; if it recurs, executor must report BLOCKED_EXTERNAL and preserve source without a retry loop. No new worker/model/key/config changes. Await result; no new tests needed for unchanged accepted KF-02a source.
+
+Latest bounded recovery also errored429 concurrent_limit after additional existing-source reads; no KF-02b implementation result accepted. Stop unchanged retries until the executor key has available concurrency. Local policy/research work continued: KF-D012 and [material capability matrix](capabilities.md) now govern NEAR-first choices. Two read-only public final-block RPC probes returned HTTP200; they do not resolve G01, wallet, NFT or end-to-end gates. No confidential API probe repeated.
 
 Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
 

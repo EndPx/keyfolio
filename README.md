@@ -11,6 +11,7 @@ Current state: the KF-02a foundation source (`packages/domain`, `packages/api-co
 - [Product baseline](docs/planning/keyfolio-v1/01-PRODUCT-AND-ENGINEERING-SPEC.md) and [acceptance matrix](docs/planning/keyfolio-v1/02-TASKS-AND-ACCEPTANCE.md)
 - [Binding decisions](docs/decisions.md)
 - [Architecture and authority boundaries](docs/architecture.md)
+- [NEAR-first capability choices and evidence](docs/capabilities.md)
 - [Database design and on-chain/off-chain placement](docs/database.md)
 - [Design system](DESIGN.md)
 - [Task status and evidence](docs/status.md)
