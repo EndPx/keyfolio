@@ -10,7 +10,7 @@ Continue the current KF-02a implementation, review/test/revise/commit/push, then
 |---|---|---|
 | KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result/report, independent Codex arithmetic/hash assertions and settled worker_done reviewed |
 | KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
-| KF-02 | RUNNING | KF-02a ACCEPTED PASS_LOCAL: Codex clean-source install/build/typecheck and52/52 tests pass; evidence generator verified. KF-02b interface freeze ready; minimal web/contract layout remains KF-02c |
+| KF-02 | RUNNING | KF-02a ACCEPTED PASS_LOCAL and published319a843: clean-source install/build/typecheck and52/52 tests. KF-02b API/source interface freeze dispatched ready; minimal web/contract layout remains KF-02c |
 | KF-03..KF-11 | TODO | No implementation acceptance |
 
 Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
