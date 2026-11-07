@@ -14,6 +14,7 @@ crate-type = ["cdylib", "rlib"]
 # unaffected. Required for host-side `cargo check/test` since near-sdk 5.30
 # rejects host compilation without a valid cfg (near/wasm/unit-testing).
 near-sdk = { version = "5.30.1", features = ["unit-testing"] }
+near-contract-standards = "5.30.1"
 
 # Sandbox tests (KF-05) run on Linux/WSL/CI only: near-workspaces downloads a
 # sandbox binary that does not support Windows hosts (CAP07). The contract
