@@ -42,6 +42,7 @@ function sleep(ms) {
 }
 async function accountExists(accountId) {
   try {
+    // near-api-js v6 provider.query throws UnknownAccount for missing accounts.
     await provider.query({ request_type: 'view_account', finality: 'final', account_id: accountId });
     return true;
   } catch {
@@ -49,12 +50,14 @@ async function accountExists(accountId) {
   }
 }
 async function callView(accountId, methodName, args) {
-  const j = await provider.query({
+  // v6 query returns the raw RPC payload: { result: [bytes], logs } — decode
+  // the byte array with the installed SDK's shape (buffer from result array).
+  const res = await provider.query({
     request_type: 'call_function', finality: 'final', account_id: accountId,
     method_name: methodName, args_base64: Buffer.from(JSON.stringify(args ?? {})).toString('base64'),
   });
-  if (j.error) throw new Error(`view ${methodName}: ${JSON.stringify(j.error)}`);
-  return JSON.parse(Buffer.from(j.result.result).toString());
+  if (res.error) throw new Error(`view ${methodName}: ${JSON.stringify(res.error)}`);
+  return JSON.parse(Buffer.from(res.result).toString());
 }
 async function ftBalanceOf(who) {
   const v = await callView(FT, 'ft_balance_of', { account_id: who });
@@ -66,34 +69,37 @@ async function ftBalanceOf(who) {
  * Returns { txHash, value (SuccessValue parsed or null), receipts }.
  * A failing receipt anywhere throws with the failure detail.
  */
-async function runTx(accountId, build) {
-  const builder = build(accFor(accountId));
-  const out = await builder.transact().await;
+// near-api-js v6: functionCall/signAndSendTransaction return the awaited
+// legacy FinalExecutionOutcome ({ transaction_outcome, receipts_outcome,
+// status }) — there is no .transact() builder.
+async function runTx(accountId, call) {
+  const out = await call(accFor(accountId));
   const failures = [];
+  const txStatus = out.transaction_outcome?.outcome?.status;
+  if (txStatus?.Failure !== undefined) {
+    failures.push(JSON.stringify(txStatus.Failure).slice(0, 300));
+  }
   for (const r of out.receipts_outcome ?? []) {
     const s = r.outcome?.status;
-    if (s && s.Failure !== undefined) {
-      failures.push(JSON.stringify(s.Failure).slice(0, 300));
-    }
+    if (s?.Failure !== undefined) failures.push(JSON.stringify(s.Failure).slice(0, 300));
   }
   if (failures.length > 0) {
-    throw new Error(`receipt failure(s) in tx ${out.transaction?.hash}: ${failures.join(' | ')}`);
+    throw new Error(`receipt failure(s) in tx ${out.transaction_outcome?.id}: ${failures.join(' | ')}`);
   }
-  const txStatus = out.transaction?.outcome?.status ?? out.receipts_outcome?.[0]?.outcome?.status;
-  let value = null;
-  if (txStatus && txStatus.SuccessValue !== undefined && txStatus.SuccessValue !== '') {
-    value = JSON.parse(Buffer.from(txStatus.SuccessValue, 'base64').toString());
-  }
-  return { txHash: out.transaction?.hash, value, receipts: out.receipts_outcome ?? [] };
+  // Final value: the overall status's SuccessValue as RAW TEXT (no Number
+  // coercion — U128 comparisons stay string-based, reviewer finding 4).
+  const finalStatus = out.status ?? txStatus;
+  const raw = finalStatus?.SuccessValue !== undefined && finalStatus.SuccessValue !== ''
+    ? Buffer.from(finalStatus.SuccessValue, 'base64').toString()
+    : null;
+  return { txHash: out.transaction_outcome?.id, raw, receipts: out.receipts_outcome ?? [] };
 }
 
 /** Like runTx but EXPECTS at least one failing receipt (double-init etc.). */
-async function runTxExpectFailure(accountId, build, needle) {
-  const builder = build(accFor(accountId));
-  const out = await builder.transact().await;
-  const statuses = (out.receipts_outcome ?? []).map((r) => r.outcome?.status);
-  const txFailed = out.transaction?.outcome?.status?.Failure !== undefined;
-  const anyFailure = txFailed || statuses.some((s) => s && s.Failure !== undefined);
+async function runTxExpectFailure(accountId, call, needle) {
+  const out = await call(accFor(accountId));
+  const statuses = [out.transaction_outcome?.outcome?.status, ...(out.receipts_outcome ?? []).map((r) => r.outcome?.status)];
+  const anyFailure = statuses.some((s) => s?.Failure !== undefined);
   if (!anyFailure) {
     throw new Error(`expected failure containing "${needle}" but the transaction succeeded`);
   }
