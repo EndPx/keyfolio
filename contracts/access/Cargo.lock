@@ -19,6 +19,7 @@ dependencies = [
  "near-contract-standards",
  "near-sdk",
  "near-workspaces",
+ "serde_json",
  "tokio",
 ]
 

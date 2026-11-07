@@ -35,7 +35,7 @@ pub const CONTRACT_VERSION: &str = "kf-05c-wip";
 
 /// Gas attached to the FT transfer promise; the withdrawal/refund callback
 /// runs with the remainder of this call's gas.
-pub const PAYOUT_GAS: Gas = Gas::from_tgas(15);
+pub const PAYOUT_GAS: Gas = Gas::from_tgas(50);
 /// Mandatory 1 yoctoNEAR on state-changing user methods (withdraw/refund).
 pub const ONE_YOCTO: NearToken = NearToken::from_yoctonear(1);
 
@@ -994,6 +994,7 @@ use near_contract_standards::non_fungible_token::events::NftTransfer;
 use near_contract_standards::non_fungible_token::metadata::NonFungibleTokenMetadataProvider;
 use near_contract_standards::non_fungible_token::Token;
 
+#[near]
 impl NonFungibleTokenCore for AccessContract {
     fn nft_transfer(
         &mut self,
@@ -1153,6 +1154,7 @@ impl AccessContract {
     }
 }
 
+#[near]
 impl NonFungibleTokenEnumeration for AccessContract {
     fn nft_total_supply(&self) -> U128 {
         self.tokens.nft_total_supply()
@@ -1177,6 +1179,7 @@ impl NonFungibleTokenEnumeration for AccessContract {
 }
 
 /// NEP-177 contract metadata is served through the standard provider trait.
+#[near]
 impl NonFungibleTokenMetadataProvider for AccessContract {
     fn nft_metadata(
         &self,
