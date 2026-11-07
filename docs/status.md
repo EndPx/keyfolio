@@ -23,7 +23,7 @@ KF-02a remains the only accepted-and-published source milestone. Work since then
 ## What is proven vs not
 
 - Proven locally: exact-amount/domain boundaries (accepted KF-02a); ledger/performance/auth domain rules with independent expected values (67→87→ suite currently 87+7 tests green via pnpm check and cargo test --locked); contract toolchain host+wasm; vesting arithmetic; design mockups as renderable artifacts.
-- NOT integrated: domain modules are not wired into apps/api or apps/worker yet; no endpoint from baseline section 11 exists beyond the KF-02a health/validate seams; contracts/access has no flows; mockups are not screens.
+- NOT integrated: domain modules are not wired into apps/api or apps/worker yet; no endpoint from baseline section 11 exists beyond the KF-02a health/validate seams; mockups are not screens. contracts/access DOES have purchase/renewal/payout/refund/transfer flows now (KF-05b/c, deployed to testnet) — what is NOT integrated is the backend wiring of those flows into apps/api/apps/worker and the KF-07 entitlement projection.
 - NOT proven anywhere: authenticated Confidential Intents ingestion (G01), wallet signing (G04), contract behavior on a real chain, end-to-end flows, live performance. Mixed-network evidence would be PARTIAL_INTEGRATION only.
 
 ## Schedule honesty

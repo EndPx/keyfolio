@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import nearApi from 'near-api-js';
+import { assertSpentAmount } from './resolver-value.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const keysDir = process.env.KEYS_DIR ?? join(here, '..', '..', '.deploy-local', 'testnet-tools', 'keys');
@@ -194,7 +195,8 @@ async function main() {
     a.functionCall({ contractId: ACCESS, methodName: 'storage_deposit', args: { account_id: BUYER }, attachedDeposit: NEAR, gas: GAS }),
   );
 
-  // 6. Purchase #1 via real ft_transfer_call; assert resolver value "0",
+  // 6. Purchase #1 via real ft_transfer_call; assert the SPENT amount
+  //    (NEP-141: resolver returns spent, so full acceptance is "101"),
   //    license + tranche, and exact FT balance deltas.
   async function purchase(purchaseId) {
     snapshotFt(BUYER, await ftBalanceOf(BUYER));
@@ -209,8 +211,8 @@ async function main() {
         attachedDeposit: 1n, gas: 250n * 10n ** 12n,
       }),
     );
-    // NEP-141: the ft_transfer_call result is the SPENT amount (neps/nep-0141.md).
-    if (r.value !== 101) throw new Error(`resolver returned ${r.value} for ${purchaseId}; expected the spent amount 101`);
+    // NEP-141: the result is the SPENT amount as a JSON U128 string.
+    assertSpentAmount(r.raw, '101', `purchase ${purchaseId}`);
     await assertFtDelta(BUYER, -101n, `purchase ${purchaseId}`);
     await assertFtDelta(ACCESS, 101n, `purchase ${purchaseId}`);
     const tid = `kf-${OPS}-${BUYER}-${purchaseId}`;
