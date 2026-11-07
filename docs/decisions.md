@@ -91,3 +91,13 @@ For each material relevant need, evaluate NEAR ecosystem products/infrastructure
 Preserve Confidential Intents account-following, NEAR contracts and transferable access NFTs as planned. This rule does not change scope, user rights, acceptance or financial authorizations. If a NEAR option is insufficient or gated, record the exact gap and a concrete compatible alternative where one exists; scope/rights changes still require user decision. Paid services and deployments retain existing approval boundaries. No silent fixture/live substitution.
 
 Canonical material-choice matrix: [capabilities.md](capabilities.md). Each choice records official sources, observed experiment or NOT_RUN, decision and missing evidence. Update the owning row when selecting/pinning a real integration; keep runtime status in status.md. Continue independent tasks without waiting for unrelated ecosystem evaluation. Existing off-chain PostgreSQL and executor route are retained for their assigned functions; no gratuitous chain storage, oracle, bridge or agent integration.
+
+## KF-D013 — Session implementation mandate, FigCraft-first UI, testnet-first order
+
+Date:2026-11-07. Owner:user. Status:binding.
+
+While the GATER executor gate persists, the user directed this working session to implement all non-blocked tasks directly (KF-02c, KF-03..KF-08 local scope) in dependency order, alongside coordination duties. The open KF-02b dispatch remains BLOCKED_EXTERNAL and untouched; its reserved scope (packages/api-contract additions, packages/provider-adapter) is not implemented by this session until the user decides otherwise, so a returning dispatch cannot collide. KF-01 stays blocked on user action.
+
+UI work MUST begin with FigCraft mockups of the baseline section 14 screens (using DESIGN.md tokens), reviewed by the user, before production screen implementation in apps/web.
+
+Chain execution order is TESTNET first, mainnet later. Sandbox/local tests remain authorized; actual testnet account creation, funding and deployment still require the user's selected account/signing route and exact prepared steps. No mainnet action without its existing explicit authorization.

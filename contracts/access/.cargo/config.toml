@@ -1,0 +1,6 @@
+# aws-lc-sys (pulled by near-sdk -> near-crypto) requires NASM on Windows MSVC
+# hosts; the crate ships prebuilt NASM objects and this flag enables them.
+# The flag is ignored on non-Windows targets (use_prebuilt_nasm requires
+# target_os == "windows"), so Linux/WSL/CI builds are unaffected.
+[env]
+AWS_LC_SYS_PREBUILT_NASM = "1"

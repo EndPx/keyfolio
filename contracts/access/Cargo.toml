@@ -1,0 +1,23 @@
+[package]
+name = "access"
+version = "0.1.0"
+edition = "2021"
+description = "Keyfolio NEAR access contract: plans, license NFT, vesting, refunds (KF-02c scaffold; full implementation lands with KF-05)."
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# unit-testing enables near-sdk's host-side mock APIs; they are compiled out
+# for wasm32 (cfg not(target_arch="wasm32")), so the on-chain build is
+# unaffected. Required for host-side `cargo check/test` since near-sdk 5.30
+# rejects host compilation without a valid cfg (near/wasm/unit-testing).
+near-sdk = { version = "5.30.1", features = ["unit-testing"] }
+
+# Sandbox tests (KF-05) run on Linux/WSL/CI only: near-workspaces downloads a
+# sandbox binary that does not support Windows hosts (CAP07). The contract
+# itself still builds and unit-tests on Windows.
+[target.'cfg(unix)'.dev-dependencies]
+near-workspaces = "0.24.0"
+tokio = { version = "1", features = ["full"] }
