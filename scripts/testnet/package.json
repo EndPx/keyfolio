@@ -1,0 +1,10 @@
+{
+  "name": "keyfolio-testnet-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tracked reproduction scripts for Keyfolio testnet operations. Signing keys stay OUTSIDE Git (KEYS_DIR, default ../../.deploy-local/testnet-tools/keys).",
+  "dependencies": {
+    "near-api-js": "^6.0.0"
+  }
+}
