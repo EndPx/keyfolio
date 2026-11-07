@@ -1,53 +1,51 @@
 # Keyfolio status
 
-Updated: 2026-11-06, Asia/Jakarta. Repository: https://github.com/EndPx/keyfolio (PUBLIC), branch main. Opened checkout had no files or Git history; no user edits were overwritten. Initial documentation commit is the current bootstrap; use git log for exact SHA rather than embedding a self-referencing commit.
+Updated: 2026-11-07, Asia/Jakarta. Repository: https://github.com/EndPx/keyfolio (PUBLIC), branch main. This reconciliation was rewritten on 2026-11-07 to separate accepted tasks, locally tested slices, unintegrated implementations and external blockers (user instruction; see KF-D013).
 
 ## Current milestone
 
-KF-02a source319a843 is accepted and published. Continue KF-02b API/source interface freeze, then minimal web/contract layout and dependency-ready tasks through KF-11 under KF-D011. Do not restart accepted work. Source access remains a separate external gate.
+KF-02a remains the only accepted-and-published source milestone. Work since then proceeds under KF-D013 (session implements non-blocked tasks locally; testnet-first; FigCraft-first UI). The executor dispatch KF-02b stays open and BLOCKED_EXTERNAL (GATER); its reserved scope is untouched.
+
+## Task states (reconciled with git history)
 
 | Task | State | Evidence / limit |
 |---|---|---|
-| KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result/report, independent Codex arithmetic/hash assertions and settled worker_done reviewed |
-| KF-01 | BLOCKED_EXTERNAL | Initial official-doc review and no-auth HTTP probes recorded; authenticated S01-S08 NOT_RUN |
-| KF-02 | BLOCKED_EXTERNAL | KF-02a ACCEPTED PASS_LOCAL published319a843,52/52 tests and GitHub CI success. KF-02b launched but errored GATER403 ip_limit_reached after context read; dispatch open, no completion |
-| KF-03..KF-11 | TODO | No implementation acceptance |
+| KF-00 | ACCEPTED | C00 PASS_LOCAL: actual DeepSeek task, returned result, independent review ([codex-review](evidence/KF-00/codex-review.md)) |
+| KF-01 | BLOCKED_EXTERNAL | Official-doc research only; no trader account, no history invitation ([access-research](evidence/KF-01/access-research.md)). Draft request remains UNSENT |
+| KF-02 | PARTIAL | KF-02a ACCEPTED, published 319a843, 52/52 tests, CI success ([acceptance](evidence/KF-02/acceptance-kf02a.md)). KF-02b dispatch BLOCKED_EXTERNAL (GATER 403/429; scope untouched). KF-02c local slice done: apps/web Next.js scaffold + contracts/access Rust toolchain validated (host+wasm) — commit f21b964, not Codex-accepted |
+| KF-03 | LOCAL_PASS (domain only) | Pure ledger rules + L01/L03/L04/L05/L07 domain tests — 8979923. Worker/cursor persistence, PGlite integration for events, live reconciliation: NOT_RUN |
+| KF-04 | LOCAL_PASS (domain only) | Exact performance math, F-PNL/F-TWR/F-DD asserted — 6bf9ef0. Pricing adapter (G03 open), public projections, snapshot pipeline: NOT_RUN |
+| KF-05 | IN_PROGRESS | KF-05a vesting helper PASS_LOCAL ([evidence](evidence/KF-05/kf05a-vesting-evidence.md)): simplified divide-before-multiply arithmetic (no widened math), 7/7 tests `cargo test --locked`, wasm32 check clean. Contract state, purchase/renewal, payout callbacks, termination/refund, epochs: NOT_RUN. NEAR sandbox tests: NOT_RUN (near-workspaces is Unix-only; WSL Ubuntu present). No deployment; KF-05 is NOT complete |
+| KF-06 | LOCAL_PASS (domain only) | Challenge/nonce/binding/credential/quota rules — 65d5ba7. Fastify wiring, real wallet-signing standard (G04), server hashing implementation: NOT_RUN |
+| KF-07, KF-09..KF-11 | TODO | Dependent on KF-05/KF-06 integration and KF-01 |
+| KF-08 | KF-08a REVISED, review pending | Mockups revised 2026-11-07 per KF-D014/KF-D015: Discover is now the Marketplace with trader-access cards (identity, approach, labeled return/PnL/MDD/swaps, coverage, snapshot+TZ, price/duration, View-profile CTA; sales-paused variants), enriched trader detail (key contents, coverage_start, separate storage, full terms), a 10-state gallery (positive/negative/zero/insufficient/unavailable/stale/partial/disconnected/idle/loading-empty-error + three separated time facts) and 390px mobile marketplace/detail. Renders shown in-session; the .figcraft file is NOT design approval. Remaining undrafted states: per-panel skeletons/upstream errors on private screens, mobile states beyond the two drafted screens. KF-08b NOT_RUN |
 
-Latest KF-02b recovery: user-authorized same-dispatch resume advanced context reads but errored503 wrapping upstream429. Screen output truncates the nested error, so no quota category/reset time is inferred. After20s backoff one bounded same-dispatch resume was sent; if it recurs, executor must report BLOCKED_EXTERNAL and preserve source without a retry loop. No new worker/model/key/config changes. Await result; no new tests needed for unchanged accepted KF-02a source.
+## What is proven vs not
 
-Latest bounded recovery also errored429 concurrent_limit after additional existing-source reads; no KF-02b implementation result accepted. Stop unchanged retries until the executor key has available concurrency. Local policy/research work continued: KF-D012 and [material capability matrix](capabilities.md) now govern NEAR-first choices. Two read-only public final-block RPC probes returned HTTP200; they do not resolve G01, wallet, NFT or end-to-end gates. No confidential API probe repeated.
+- Proven locally: exact-amount/domain boundaries (accepted KF-02a); ledger/performance/auth domain rules with independent expected values (67→87→ suite currently 87+7 tests green via pnpm check and cargo test --locked); contract toolchain host+wasm; vesting arithmetic; design mockups as renderable artifacts.
+- NOT integrated: domain modules are not wired into apps/api or apps/worker yet; no endpoint from baseline section 11 exists beyond the KF-02a health/validate seams; contracts/access has no flows; mockups are not screens.
+- NOT proven anywhere: authenticated Confidential Intents ingestion (G01), wallet signing (G04), contract behavior on a real chain, end-to-end flows, live performance. Mixed-network evidence would be PARTIAL_INTEGRATION only.
 
-Codex owns docs, schema/interface decisions, review and integration. Attempt01 failed at readiness and was released. Attempt02 reported input_accepted but actual worker-read revealed a first-run onboarding wizard; it never executed C00. Guarded worker-stop confirmed closure, then the installed TUI preference helper recorded setup-guide completion while retaining model/credentials. Attempt03 completed C00 and worker_done/worker-show reconcile succeeded/settled. [Codex review](evidence/KF-00/codex-review.md) accepts total43, retained3, duplicate1 and exact fixture SHA-256 after independent Python assertions. No funds/deployments/third-party messages performed.
+## Schedule honesty
 
-KF-02a is accepted; [acceptance evidence](evidence/KF-02/acceptance-kf02a.md) records final52-test verification. Review01–04 retain prior failures; they are historical, not current blockers. Final GATER429 interruption recovered on the same dispatch and worker_done/settled was verified. DeepSeek owns KF-02b API-contract/provider-adapter source and root lockfile; Codex owns status/decisions and integration. No concurrent migration/lockfile writer. Exact runtime IDs are in ignored local notes.
+Baseline dates from file 02 are already slipping: the Nov 7 targets (KF-01 gate decision; full KF-02 acceptance) are unmet — KF-01 is user-blocked and KF-02b/02c are not accepted. No schedule is declared safe. Continued local progress does not change the live-integration risk, which stays unforecast until source access and authorized account testing exist.
 
 ## Runtime inventory
 
-Verified locally: Node24.18.0; pnpm10.21.0; rustc1.99.0; cargo1.99.0; GitHub CLI authenticated as EndPx. Proven executor: DeepSeek Harness0.2.1-rc.5 with TUI0.18.0, `gater/deepseek-v4.1-flash-1017-v2`, endpoint host api.gater.ai.id. C00 demonstrated model task execution, returned artifacts and Codex review. Saved GATER credential resolves through the shared Harness credential store; no credentials displayed or committed. Configuration is stable; do not reconfigure/retest absent a new failure.
-
-Resolved startup history: TUI0.17.0 was incompatible; upgraded to0.18.0 and matching hooks0.2.1-rc.5 without compatibility exemptions or Harness downgrade. First-run onboarding was completed before the successful C00 attempt. Failed attempts remain in evidence; they are not current blockers. Multiple Orca workspace records share this checkout; use the existing exact selector from local runtime notes.
-
-Credential-resolution correction is closed: saved `refs` take precedence over environment fallback. Earlier records-only inspection missed the saved reference. C00 subsequently proved execution; no credential action is pending for GATER.
+Verified locally: Node 24.18.0; pnpm 10.21.0; rustc/cargo 1.99.0; wasm32-unknown-unknown target installed; GitHub CLI authenticated as EndPx; WSL Ubuntu (WSL2) present for NEAR sandbox work; Windows host needs AWS_LC_SYS_PREBUILT_NASM=1 for aws-lc-sys (repo-local cargo config set). Proven executor: DeepSeek Harness 0.2.1-rc.5 / GATER / DeepSeek Flash via Orca (C00). Sandbox tests for the contract run under WSL/Linux only (near-workspaces downloads a sandbox binary unsupported on Windows hosts).
 
 ## External gates
 
-- Executor access: GATER403 ip_limit_reached recurred at KF-02b after successful KF-02a recovery/completion. Provider reports2-IP maximum. Keep the current task/dispatch; no unchanged retries, new key/model or config changes. User/provider must restore stable IP binding for the worker; cause of repeated IP allocation (network/proxy/other clients) is UNKNOWN, not diagnosed from this error. Future executor work depends on this access. GitHub CI for319a843 passed:[run42187100379](https://github.com/EndPx/keyfolio/actions/runs/42187100379).
+- Executor access: GATER 403 ip_limit_reached / 429 concurrent_limit still unresolved; KF-02b dispatch remains open, no unchanged retries, no config changes. GitHub CI green through b5fc0b9 (per-push).
+- G01: no trader test account, no history invitation, no redistribution permission; draft request UNSENT awaiting user decision.
+- G02 (subscription FT), G03 (historical price source), G04 (wallet SDK pin + real signing path), G05 (live accounts/budgets/destinations): OPEN. Testnet-first execution order confirmed (KF-D013); testnet deployment will be prepared as a separate concrete step listing account, network, signing route and costs before anything is deployed.
 
-- G01: user confirms no selected trader test account and no history invitation/access confirmation. [Official access research](evidence/KF-01/access-research.md) separates partner identity, owner session and unconfirmed invitation granularity/coverage. [Unsent request draft](provider-access-request.md) asks for invitation, environment, complete account coverage and subscriber-use rights. No repeated unauthenticated probes or provider messages. Initial reachability evidence is historical only, not authenticated access.
-- G02: actual subscription FT/network/decimals/storage behavior unknown.
-- G03: historical price provider not selected.
-- G04: dependency versions and real wallet signing path not accepted.
-- G05: live account, budgets, fees/destinations and signing route not authorized.
-- Public paid use of vesting/refund/monitor still awaits user decision; local tests authorized.
-
-Required future configuration names (not values): DATABASE_URL, KEYFOLIO_MODE, NEAR_NETWORK, NEAR_RPC_URL, ACCESS_CONTRACT_ID, SUBSCRIPTION_FT_CONTRACT_ID, PROVIDER_BASE_URL, PROVIDER_PARTNER_JWT (if required), TOKEN_ENCRYPTION_KEY, CREDENTIAL_HASH_KEY, SESSION_SECRET, APP_ORIGIN. Provider user-session/refresh tokens belong to encrypted connection storage after wallet proof, not NEXT_PUBLIC variables or committed env files. Exact provider requirements remain under KF-01 verification.
+Required future configuration names (not values): DATABASE_URL, KEYFOLIO_MODE, NEAR_NETWORK, NEAR_RPC_URL, ACCESS_CONTRACT_ID, SUBSCRIPTION_FT_CONTRACT_ID, PROVIDER_BASE_URL, PROVIDER_PARTNER_JWT (if required), TOKEN_ENCRYPTION_KEY, CREDENTIAL_HASH_KEY, SESSION_SECRET, APP_ORIGIN.
 
 ## Next bounded outcomes
 
-1. DONE: public repo, reviewed documentation/asset bootstrap, byte-identical baseline and GitHub main verified.
-2. DONE:C00 accepted after actual GATER/DeepSeek Flash result and independent review. Latest accepted evidence points to the reviewed fixture, not just a launch receipt.
-3. KF-01 remains blocked on an authorized account signing route, User-Session/history invitation, and subscriber data reuse permission; do not repeat no-auth probes as access verification. Existing report records the known limits.
-4. Receive/review KF-02a source, build and actual PostgreSQL-engine amount-test evidence including1.5; send revisions via its dispatch mailbox, accept/commit/push only reviewed files. No full KF-02 claim from this first slice. Next KF-02b completes missing minimal web/contract test layout and API/interface freeze before KF-05/KF-06. KF-D009/KF-D010 govern amounts/termination cutoff.
-5. After each accepted task choose the next ready task automatically. KF-01 next action is user review/sending or explicit authorization of the unsent provider inquiry; no need to select/fund B before the provider identifies a suitable environment. Provider permission and actual account access remain separate acceptance requirements. Wallet signing stays with user; no keys/tokens in chat.
-
-Target:14 November2026 23:59 WIB internal. Date is not a live-readiness guarantee. Risk: account-wide live ingestion/copy acceptance cannot be forecast until history access, source permissions and authorized account testing are available. Continue independent local work; do not imply that local tests resolve that risk. Next checkpoint is KF-02a source/test review.
+1. KF-05b: contract state + plans + ft_on_transfer purchase/renewal + views (local unit scope), then KF-05c payout/termination/refund/epoch flows; NEAR sandbox tests under WSL as the execution step for N01-N12.
+2. Testnet deployment prep as a separate concrete checklist (account creation via near CLI per user authorization, network config, signing route, storage/gas costs) — no deployment until the user signs off that checklist.
+3. KF-08b production screens only after the user reviews/approves the mockup renders.
+4. KF-01 next action unchanged: user reviews/sends the provider inquiry or grants explicit authorization.
+5. KF-02b: untouched until GATER access is restored; reconcile with the user before resuming that dispatch.

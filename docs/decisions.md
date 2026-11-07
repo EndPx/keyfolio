@@ -100,4 +100,30 @@ While the GATER executor gate persists, the user directed this working session t
 
 UI work MUST begin with FigCraft mockups of the baseline section 14 screens (using DESIGN.md tokens), reviewed by the user, before production screen implementation in apps/web.
 
+## KF-D014 — Marketplace clarification: trader access offering, not NFT resale
+
+Date:2026-11-07. Owner:user. Status:binding clarification.
+
+The Keyfolio "marketplace" is where TRADERS sell access/subscription to their trading account activity: trader listing, profile, price/package, purchase and customer access. This is the existing v1 Discover/Profile/Trader Studio flow already covered by baseline file 01 and the mockups. The NFT resale marketplace between followers remains out of v1 scope per baseline section 2. No scope change is introduced by this clarification; naming/copy in UI may use "Marketplace" for the Discover surface.
+
+## KF-D015 — Marketplace design rules: seller data vs system-computed metrics
+
+Date:2026-11-07. Owner:user. Status:binding design contract for the marketplace surface.
+
+Seller-editable profile fields: display name, avatar, handle/account identity, bio and a short trading-approach description, and the access package price in the allowlisted payment token (G02). Performance metrics (net PnL, return/TWR, maximum drawdown, settled swap count, coverage, snapshots) are ALWAYS computed by Keyfolio from allowed, normalized, reconciled account data with a qualified price source. There is no seller input for PnL, return, drawdown, trade counts or performance history; profit screenshots are never an authoritative marketplace source. A strategy description is seller profile information, not a separate portfolio and never a replacement for the source account (account-following is preserved, including supported activity from outside Keyfolio).
+
+Marketplace card must show: identity (avatar/name/handle), short approach description, period return as the primary visual metric when valid, net PnL, maximum drawdown and settled swaps for the SAME labeled period, coverage (tracked-since, complete window, gaps), last public snapshot time with timezone, access price and package duration (default 30 days), and a "View profile" CTA leading to detail before checkout. Metrics carry explicit period labels; layout stays clean when metrics are unavailable; not everything collapses into small badges.
+
+Trader detail page shows: seller identity/description, aggregate performance chart over the labeled period with coverage_start, the four metrics, data completeness/gaps/last snapshot, package contents (account activity, balances/positions, retained history, API access, assisted-copy eligibility per baseline), the earliest genuinely available history date, price/token/network/duration with storage cost listed separately, renewal/transfer/service-termination/refund terms, and a purchase CTA naming the next step. No tiered packages, performance fee, automatic copy, ratings/reviews, follower counts or achievement badges in v1.
+
+Metric honesty: deposits are not profit; net PnL follows baseline (equity_end - equity_start - external_deposits + external_withdrawals); TWR only with valid cash-flow-boundary valuations; drawdown only from a valid TWR wealth index; unavailable metrics render as unavailable with a reason, never zero; no win rate/Sharpe/realized-unrealized split/annualization/"verified PnL" in v1; the term is "Tracked performance"; no charts before coverage_start and no projection of short history into monthly/annual figures; money stays atomic strings/exact arithmetic end to end.
+
+Public vs keyholder: the public sees only trader-consented profile and aggregates. Activity detail, precise trade timestamps/amounts, private balances and positions sit behind NFT entitlement checks; no public preview may leak holdings, trade detail, provider credentials, source session tokens or private source identity. The NFT grants read access for its active term only; it never grants authority to spend trader funds; assisted copy uses follower funds and a fresh explicit signature.
+
+States to design (FigCraft): complete-coverage positive performance; negative and zero performance; new seller with insufficient history; unavailable return/drawdown with reasons; stale snapshot; partial/unknown coverage; source disconnected or consent withdrawn (with sales blocked and existing-subscriber handling); idle account with successful reads (idle is not service death); loading, empty marketplace and upstream error. Last-trade time, source observation freshness and public snapshot time are displayed as separate facts. New sales/listing follow coverage and source-health requirements: no active purchase CTA where baseline blocks sales (PARTIAL/UNKNOWN coverage, incomplete source data, terminated or consent-withdrawn service).
+
+Discovery ordering: default newest active profiles; performance sorting only compares profiles with complete coverage over the SAME window; a 3-day return is never ranked against a 30-day return; period filters must show insufficient history rather than assume 7/30-day data exists.
+
+Sample data in FigCraft is labeled "Illustrative sample" and never presented as real trader performance; synthetic-data app runs carry accurate FIXTURE/TESTNET labels; the not-yet-selected payment token stays a placeholder. Rendering the .figcraft file is a review artifact, not user design approval.
+
 Chain execution order is TESTNET first, mainnet later. Sandbox/local tests remain authorized; actual testnet account creation, funding and deployment still require the user's selected account/signing route and exact prepared steps. No mainnet action without its existing explicit authorization.
