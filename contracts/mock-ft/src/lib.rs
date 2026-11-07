@@ -82,6 +82,11 @@ impl MockFt {
         self.token.ft_balance_of(account_id)
     }
 
+    /// NEP-141 core enumeration: total supply as a string.
+    pub fn ft_total_supply(&self) -> U128 {
+        FungibleTokenCore::ft_total_supply(&self.token)
+    }
+
     #[payable]
     pub fn storage_deposit(
         &mut self,
@@ -106,6 +111,7 @@ impl MockFt {
     }
 }
 
+#[near]
 impl FungibleTokenMetadataProvider for MockFt {
     fn ft_metadata(&self) -> FungibleTokenMetadata {
         self.metadata.get().unwrap()
