@@ -11,11 +11,11 @@
   --ink: #ffffff;
   --ink70: rgba(255, 255, 255, 0.7);
   --ink55: rgba(255, 255, 255, 0.55);
-  --ink45: rgba(255, 255, 255, 0.45);
-  --ink40: rgba(255, 255, 255, 0.4);
-  --ink35: rgba(255, 255, 255, 0.35);
+  --ink45: rgba(255, 255, 255, 0.58);
+  --ink40: rgba(255, 255, 255, 0.55);
+  --ink35: rgba(255, 255, 255, 0.62);
   --ink30: rgba(255, 255, 255, 0.3);
-  --ink28: rgba(255, 255, 255, 0.28);
+  --ink28: rgba(255, 255, 255, 0.55);
   --hairline: rgba(255, 255, 255, 0.05);
   --hairline-strong: rgba(255, 255, 255, 0.055);
   --card-border: rgba(255, 255, 255, 0.06);
@@ -26,6 +26,7 @@
   --down: #ff453a;
   --down-bg: rgba(255, 69, 58, 0.14);
   --warn: #e8c64a;
+  --ink32: rgba(255, 255, 255, 0.62);
   --gutter: 20px;
 }
 
@@ -64,8 +65,8 @@ a:hover { text-decoration: none; }
   font-size: 11.5px; line-height: 1.45; color: var(--ink45);
 }
 .banner strong { color: var(--ink); font-weight: 600; }
-.banner-error { color: var(--down); }
-.banner-error strong { color: var(--down); }
+.banner-error { color: var(--warn); }
+.banner-error strong { color: var(--warn); }
 .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
 .dot-warn { background: var(--warn); }
 .dot-block { background: var(--ink30); }
@@ -132,6 +133,16 @@ a:hover { text-decoration: none; }
 .seller-name { font-size: 16px; line-height: 21px; font-weight: 700; }
 .seller-handle { font-size: 11.5px; line-height: 16px; color: var(--ink38); }
 .seller-approach { font-size: 13.5px; line-height: 1.5; color: var(--ink45); margin: 0; }
+
+/* Coverage-state badges - NOT P&L: no green/red here (KF-D016) */
+.badge {
+  display: inline-block; border-radius: 999px; padding: 4px 12px;
+  font-size: 9.5px; line-height: 14px; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+}
+.badge-ok { background: #0b0b0b; color: var(--ink); border: 1px solid var(--ghost-border); }
+.badge-warn { background: rgba(232, 198, 74, 0.14); color: var(--warn); border: 1px solid rgba(232, 198, 74, 0.35); }
+.badge-muted { background: var(--surface-alt); color: var(--ink45); border: 1px solid var(--card-border); }
 
 /* Identity orb — Xorr AgentOrb recipe */
 .orb {
@@ -240,10 +251,10 @@ a:hover { text-decoration: none; }
 .refund-note p { margin: 0; color: var(--ink45); font-size: 11.5px; line-height: 1.5; }
 .state-chip { border-radius: 18px; padding: 12px 16px; font-size: 12.5px; line-height: 18px; font-weight: 600; }
 .chip-pending { background: rgba(232, 198, 74, 0.12); color: var(--warn); }
-.chip-success { background: var(--up); color: var(--up-ink); }
+.chip-success { background: var(--ink); color: #0b0b0b; }
 
 .panel { background: var(--surface); border: 1px solid var(--card-border); border-radius: 22px; padding: 18px; }
-.note-error { color: var(--down); border-color: rgba(255, 69, 58, 0.3); }
+.note-error { color: var(--warn); border-color: rgba(232, 198, 74, 0.35); }
 .note-error .terms-text { color: var(--ink70); }
 
 /* Mobile: sidebar becomes a top bar; content gutter 16px */

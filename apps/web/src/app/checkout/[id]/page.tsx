@@ -18,7 +18,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
         <h1 id="page-title" className="page-title">Checkout</h1>
         <div className="panel note-error" role="status">
           <p className="terms-text">
-            Configuration error: {cfg.error} — copy .env.example to .env and set KEYFOLIO_MODE.
+            Configuration error: {cfg.error} — copy .env.example (in apps/web) to apps/web/.env.local and set KEYFOLIO_MODE.
             No order data is shown until the mode is configured.
           </p>
         </div>

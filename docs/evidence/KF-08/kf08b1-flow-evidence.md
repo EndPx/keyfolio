@@ -56,6 +56,22 @@ states the target network (NEAR testnet); verify-web-modes guards against stale-
 attachment are documented — fixed ports remain but each mode asserts its own banner/mode text
 via the route content checks (a wrong-env server fails the marker assertions).
 
+## Reviewer pass 2 (2026-11-09) — CHANGES_REQUIRED, all 3 required findings + NITs fixed
+
+1. Coverage badges restyled in the Xorr language (COMPLETE = white on black
+with ghost border, PARTIAL = amber, TRACKING = muted surface) - green/red
+stay P&L-only per KF-D016.
+2. Dark-theme contrast raised to WCAG AA on every text-bearing ink token
+(ink45 -> .58, ink40/.38/.28 -> .55, ink35 -> .62; low alphas remain only
+on hairlines/borders/decoration); undefined --ink32 now defined at .62.
+3. Non-P&L hue discipline: success chip is white-on-dark, config/mode
+errors use amber - red/green appear only in P&L contexts.
+NITs: checkout config wording points at apps/web/.env.local, SVG/orb
+colors reference tokens and seller.gradient (single-sourced), stale
+IBM-Plex/gutter evidence lines superseded, verify-web-modes stale-server
+risk stays documented (dev script). Re-verified: pnpm check 95/95 + mode
+matrix PASSED + desktop/mobile screenshots refreshed.
+
 ## Xorr restyle (KF-D016) applied in the same pass
 
 globals.css rewritten to the Xorr language: true black bg, dark surfaces, hairlines, ink scale,

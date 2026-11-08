@@ -1,5 +1,5 @@
 // Web config resolution. FAIL-CLOSED like the rest of Keyfolio: KEYFOLIO_MODE
-// is required (copy .env.example to .env). FIXTURE mode serves the clearly
+// is required (copy apps/web/.env.example to apps/web/.env.local). FIXTURE mode serves the clearly
 // labeled illustrative data; TESTNET/LIVE have no data source wired yet, so
 // data sections render an explicit not-connected state instead of fixtures.
 

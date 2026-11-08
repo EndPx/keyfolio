@@ -26,8 +26,8 @@ function TwrChart() {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Tracked return (TWR) over the last 30 days, from 0% to +8.24%" className="chart-svg">
         <defs>
           <linearGradient id="twr-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2BD87A" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="#2BD87A" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--up)" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="var(--up)" stopOpacity="0" />
           </linearGradient>
         </defs>
         {grid.map((g) => (
@@ -37,8 +37,8 @@ function TwrChart() {
           </g>
         ))}
         <polygon points={`${padL},${H - padB} ${pts.join(' ')} ${W - 16},${H - padB}`} className="chart-area" stroke="none" />
-        <polyline points={pts.join(' ')} fill="none" stroke="#2BD87A" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <circle cx={pts[pts.length - 1].split(',')[0]} cy={pts[pts.length - 1].split(',')[1]} r="3.2" fill="#2BD87A" />
+        <polyline points={pts.join(' ')} fill="none" stroke="var(--up)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <circle cx={pts[pts.length - 1].split(',')[0]} cy={pts[pts.length - 1].split(',')[1]} r="3.2" fill="var(--up)" />
         {[
           { i: 0 },
           { i: Math.floor(CARLA_TWR_SERIES.length / 2) },
@@ -98,7 +98,7 @@ export default async function TraderPage({ params }: { params: Promise<{ id: str
           <span
             className="orb"
             aria-hidden="true"
-            style={{ background: 'radial-gradient(circle at 32% 26%, #5B93FF, #1B44CE 74%)' }}
+            style={{ background: `radial-gradient(circle at 32% 26%, ${seller.gradient[0]}, ${seller.gradient[1]} 74%)` }}
           />
           <div>
             <h1 id="page-title" className="page-title">{p.name}</h1>
