@@ -58,7 +58,7 @@ export const MARKET_SELLERS: MarketSeller[] = [
     settledSwaps: 148,
     trackedSince: 'Oct 8, 2026',
     snapshotAt: 'Nov 7, 2026 00:00 UTC',
-    priceLabel: PLAN.priceLabel,
+    priceLabel: '25 KF-TEST / 30 days',
     salesActive: true,
     salesPausedReason: null,
   },

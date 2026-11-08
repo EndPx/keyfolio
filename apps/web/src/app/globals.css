@@ -33,7 +33,7 @@ a:hover { text-decoration: underline; }
 
 /* Environment banner */
 .banner {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   background: var(--surface-subtle);
   padding: 10px 32px;
   font-size: 12px; line-height: 18px; color: var(--text-secondary);
@@ -194,7 +194,7 @@ a:hover { text-decoration: underline; }
   }
   .nav-links { flex-direction: row; overflow-x: auto; gap: 4px; flex: 1 1 auto; }
   .nav-link { padding: 6px 10px; white-space: nowrap; }
-  .user-row { margin-top: 0; }
-  .main { padding: 16px; }
+  .user-row { display: none; }
+  .main { padding: 16px; max-width: 100vw; overflow-x: hidden; }
   .cta-row .btn { flex: 1 1 auto; }
 }

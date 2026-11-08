@@ -48,6 +48,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@keyfolio/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       next:
         specifier: 16.4.5
         version: 16.4.5(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -77,6 +80,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/domain
     devDependencies:
+      '@electric-sql/pglite':
+        specifier: 0.5.15
+        version: 0.5.15
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2

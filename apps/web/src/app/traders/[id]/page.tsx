@@ -1,21 +1,6 @@
 import { CARLA_PROFILE, CARLA_TWR_SERIES, PLAN, getSeller } from '../../../fixture';
 import { getWebConfig } from '../../../config';
 
-function ModeGate({ children }: { children: React.ReactNode }) {
-  const cfg = getWebConfig();
-  if (!cfg.ok) {
-    return <p className="panel note-error">Fix the KEYFOLIO_MODE configuration to see this page.</p>;
-  }
-  if (cfg.mode !== 'FIXTURE') {
-    return (
-      <p className="panel note-error" role="status">
-        {cfg.mode} mode is active: no data source is wired yet — fixture data is never served here.
-      </p>
-    );
-  }
-  return <>{children}</>;
-}
-
 /** Public chart: tracked return (TWR) in percent — never private balances. */
 function TwrChart() {
   const W = 840;
@@ -63,6 +48,29 @@ function TwrChart() {
 
 export default async function TraderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const cfg = getWebConfig();
+
+  if (!cfg.ok) {
+    return (
+      <section aria-labelledby="page-title">
+        <h1 id="page-title" className="page-title">Trader profile</h1>
+        <div className="panel note-error" role="status">
+          <p className="terms-text">Configuration error: {cfg.error} — no profile data is shown until KEYFOLIO_MODE is configured.</p>
+        </div>
+      </section>
+    );
+  }
+  if (cfg.mode !== 'FIXTURE') {
+    return (
+      <section aria-labelledby="page-title">
+        <h1 id="page-title" className="page-title">Trader profile</h1>
+        <div className="panel note-error" role="status">
+          <p className="terms-text">{cfg.mode} mode is active: profile data requires the contract/provider queries (next KF-08b increment) and fixture data is never served in this mode.</p>
+        </div>
+      </section>
+    );
+  }
+
   const seller = getSeller(id);
   if (!seller || seller.id !== 'carla') {
     return (
@@ -76,7 +84,7 @@ export default async function TraderPage({ params }: { params: Promise<{ id: str
   return (
     <section aria-labelledby="page-title">
       <p className="sample-note">Illustrative sample — not real performance · metrics computed by Keyfolio only</p>
-      <ModeGate>
+      <>
         <header className="profile-head">
           <span className="avatar avatar-xl" aria-hidden="true" />
           <div>
@@ -151,7 +159,7 @@ export default async function TraderPage({ params }: { params: Promise<{ id: str
           <a className="btn btn-primary" href={`/checkout/${seller.id}`}>Buy access · {PLAN.priceLabel}</a>
           <a className="btn btn-secondary" href="/">Back to Marketplace</a>
         </div>
-      </ModeGate>
+      </>
     </section>
   );
 }
