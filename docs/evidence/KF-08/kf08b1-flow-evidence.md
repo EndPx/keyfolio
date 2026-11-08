@@ -33,7 +33,6 @@ Environment: Next.js 16.4.5 / React 19.3.1; @keyfolio/domain reused for FAIL-CLO
 - **Mobile navigation**: logo + simple horizontal menu (user row hidden ≤900px), banner wraps, main capped at 100vw — no horizontal overflow; Carla's card price now includes "/ 30 days" in the web fixture (reviewer finding).
 - **package.json/pnpm-lock reconciled** in this commit; resolver-value.test.mjs runs inside 
 > keyfolio@0.1.0 test:run D:\Belajar\Hackacton\Hackacton yang masih jalan\Keyfolio
-> node --import tsx --test --test-force-exit "packages/domain/test/**/*.test.ts" "packages/api-contract/test/**/*.test.ts" "apps/api/test/**/*.test.ts" "apps/worker/test/**/*.test.ts" "scripts/*.test.ts"
 
 ✔ reports the actual PostgreSQL engine version (2624.0244ms)
 ✔ atomic_u128 casts: canonical strings accepted with exact round-trip (5.7101ms)
@@ -138,7 +137,7 @@ Environment: Next.js 16.4.5 / React 19.3.1; @keyfolio/domain reused for FAIL-CLO
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms 5129.5444 (glob scripts/testnet/*.test.mjs). Actual suite count: **95/95** in one combined run.
-- **Temporary known limitation**:  remains on test:run because PGlite teardown inside the combined node:test process crashes V8 during isolate disposal; normal cleanup is NOT proven yet.
+- **Temporary known limitation**: the `--test-force-exit` flag remains on test:run because PGlite teardown inside the combined node:test process crashes V8 during isolate disposal; normal cleanup is NOT proven yet.
 
 ## Known limitations (follow-up, not this milestone)
 
