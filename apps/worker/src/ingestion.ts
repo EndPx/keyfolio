@@ -21,8 +21,13 @@ import {
 } from '@keyfolio/domain';
 import type { ParsedValue } from './json.js';
 
+/**
+ * Minimal DB seam: PGlite (tests) and node-postgres (worker) both satisfy
+ * this structurally. Rows are typed loosely here and narrowed at the call
+ * sites, because the two drivers type their results differently.
+ */
 export type IngestDb = {
-  query: (sql: string, params?: unknown[]) => Promise<{ rows: ParsedValue[] }>;
+  query: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
   transaction: <T>(fn: (tx: IngestDb) => Promise<T>) => Promise<T>;
 };
 
@@ -212,7 +217,7 @@ export async function applyIngestBatch(
           NORMALIZATION_VERSION,
         ],
       );
-      const eventId = inserted.rows[0]?.id;
+      const eventId = (inserted.rows[0] as { id?: string } | undefined)?.id;
       if (eventId === undefined || eventId === null) {
         continue; // exact duplicate of an already-stored revision: no effects
       }
@@ -241,7 +246,7 @@ export async function applyIngestBatch(
     if (advanced.rows.length !== 1) {
       throw new CursorConflictError('cursor CAS update matched no rows');
     }
-    const newVersion = advanced.rows[0].version;
+    const newVersion = (advanced.rows[0] as { version: string | number }).version;
     if (options?.beforeCommit) {
       await options.beforeCommit();
     }

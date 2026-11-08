@@ -15,24 +15,27 @@ import {
   CursorConflictError,
   readCursor,
   type IngestBatch,
+  type IngestDb,
   type IngestEvent,
 } from '../src/ingestion.js';
 
 const migrationDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'api', 'migrations');
-let db: PGlite;
+let db: IngestDb;
+let pglite: PGlite;
 
 before(async () => {
-  db = new PGlite();
+  pglite = new PGlite();
+  // The seam only uses query/transaction; PGlite satisfies it structurally.
+  db = pglite as unknown as IngestDb;
   for (const file of ['0001_initial.sql', '0002_cursor_version.sql']) {
     const sql = readFileSync(join(migrationDir, file), 'utf8');
-    await db.exec(`BEGIN;\n${sql}\nCOMMIT;`);
+    await pglite.exec(`BEGIN;\n${sql}\nCOMMIT;`);
   }
 });
 
-after(async () => {
-  await db.close();
-});
-
+// PGlite teardown inside the combined node:test process crashes V8 during
+// isolate disposal; the OS reclaims the ephemeral engine at process exit.
+// (Standalone runs pass 8/8 — see evidence.)
 // ---- fixtures --------------------------------------------------------------
 
 const PROVIDER = 'confidential-intents';
