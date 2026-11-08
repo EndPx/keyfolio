@@ -3,6 +3,7 @@ import { Inter, Baloo_2 } from 'next/font/google';
 import './globals.css';
 import { getWebConfig } from '../config';
 import { SideNav } from '../components/SideNav';
+import { WalletProvider } from '../wallet/WalletContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const baloo = Baloo_2({ subsets: ['latin'], weight: ['800'], variable: '--font-baloo' });
@@ -63,10 +64,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <EnvBanner />
         <div className="shell">
-          <SideNav />
-          <main className="main" id="main">
-            {children}
-          </main>
+          <WalletProvider>
+            <SideNav />
+            <main className="main" id="main">
+              {children}
+            </main>
+          </WalletProvider>
         </div>
       </body>
     </html>

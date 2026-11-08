@@ -1,6 +1,7 @@
 import { PLAN, getSeller } from '../../../fixture';
 import { getWebConfig } from '../../../config';
 import { CheckoutActions } from './CheckoutActions';
+import { CheckoutTestnet } from './CheckoutTestnet';
 
 /**
  * FAIL-CLOSED ORDER (review KF-08b.1): the mode/config gate runs BEFORE any
@@ -30,13 +31,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
     return (
       <section aria-labelledby="page-title">
         <h1 id="page-title" className="page-title">Checkout</h1>
-        <div className="panel note-error" role="status">
-          <p className="terms-text">
-            {cfg.mode} mode is active: the checkout flow is not wired to wallet signing or contract
-            queries yet (next KF-08b increment), and fixture order data is never served in this
-            mode. Connect the plan query and wallet path to enable real checkout.
-          </p>
-        </div>
+        <p className="sample-note">{cfg.mode} mode · live contract data · no fixture numbers on this page</p>
+        <CheckoutTestnet />
       </section>
     );
   }

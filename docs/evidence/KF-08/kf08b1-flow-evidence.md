@@ -43,6 +43,35 @@ CARLA_PROFILE.gradient removed (seller.gradient is the single source) and
 dead --up-ink/.chip-* classes deleted. KF-08b.1 is review-complete at the
 worker level; user/Codex-level acceptance stays a separate record.
 
+## KF-08b.2 + KF-08b.3 evidence (2026-11-09, PASS_TESTNET views + PASS_LOCAL pages)
+
+**KF-08b.2 — wallet + contract queries (TESTNET)**: NEAR Wallet Selector
+10.1.4 (MyNearWallet) wired through a client WalletProvider; user-controlled
+signing only. New client data layer (src/testnet.ts) queries the deployed
+contract directly (contract_info, get_current_plan, get_trader, get_license,
+get_token_tranches, claimable_of, nft_tokens_for_owner). Checkout in TESTNET
+renders LIVE contract state with explicit on-chain prerequisite gates —
+verified in browser against keyfolio-access.testnet: plan published ✓ (101
+atomic / 10,000 ms — the actual on-chain values), seller sales enabled ✓,
+FT deployed ✕ (keyfolio-usdc.testnet still faucet-blocked, G02), wallet
+connected ✕ — purchase disabled with the honest reason + Connect wallet.
+Purchase action is a real ft_transfer_call through the wallet (near-js
+action builder); it enables only when all gates pass. No simulation, no
+fake signatures.
+
+**KF-08b.3 — remaining screens**: My Keys (real enumeration +
+get_license per token for the signed wallet), Trader Studio (real
+get_trader/claimable_of + real ft_withdraw via wallet), Activity (real
+purchases from the contract; copy/refund entries honestly absent until the
+backend ledger lands), Private Account + API Access (honest
+not-connected panels — ingestion/credential backends are KF-01/KF-02b
+scope; no fake feeds). FIXTURE-only screens unchanged and still labeled.
+
+Verification: pnpm check 95/95; build clean; routes 7/7 HTTP 200 on
+TESTNET instance; browser-verified gates (screenshot
+kf08b2-testnet-checkout-gates-1280.png); fail-closed config error
+screenshot also captured earlier in this file's flow.
+
 ## Known limitations (follow-up, not this milestone)
 
 - TESTNET/LIVE pages render the not-connected state: contract price queries, wallet signing (NEP-413/wallet standard per G04), and real entitlement checks are the next KF-08b increments.

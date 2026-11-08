@@ -4,11 +4,11 @@ import { usePathname } from 'next/navigation';
 
 const ITEMS: { label: string; href?: string }[] = [
   { label: 'Marketplace', href: '/' },
-  { label: 'My Keys' },
-  { label: 'Private Account' },
-  { label: 'API Access' },
-  { label: 'Trader Studio' },
-  { label: 'Activity' },
+  { label: 'My Keys', href: '/keys' },
+  { label: 'Private Account', href: '/private' },
+  { label: 'API Access', href: '/api-access' },
+  { label: 'Trader Studio', href: '/studio' },
+  { label: 'Activity', href: '/activity' },
 ];
 
 /**
