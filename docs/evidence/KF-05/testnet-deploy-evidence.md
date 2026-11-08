@@ -1,4 +1,17 @@
-# Testnet deployment evidence — access contract (PASS_TESTNET scope: deploy/init/views/plan)
+# Testnet deployment evidence — access contract
+
+**STATUS: INVALID (corrected 2026-11-09).** Direct RPC queries via fastnear return
+UNKNOWN_ACCOUNT for all three accounts (keyfolio-ops/monitor/access.testnet) — the faucet script
+reported success without verifying the on-chain result, and the deploy script checked neither the
+tx status nor account existence. The tx hash, contract_info view and set_plan "success" below were
+produced against a non-existent account and are NOT valid evidence. This is exactly the
+failure class (outcome accepted without verification) the review process exists to catch.
+Nothing from this file may be cited as testnet state until the accounts are actually created
+(faucet rate limit allowing) and the deployment is repeated with receipt-level verification.
+
+The original (invalid) record is preserved below for the record.
+
+--- INVALID RECORD FOLLOWS ---
 
 Date: 2026-11-07. Executor: this session (user mandate KF-D013 + "kerjakan semuanya"; wallet creation via near CLI / faucet API authorized 2026-11-07). NO mainnet action.
 

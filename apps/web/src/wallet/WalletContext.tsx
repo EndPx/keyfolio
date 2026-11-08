@@ -24,38 +24,45 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { ACCESS_CONTRACT } from '../testnet';
 
 interface WalletCtx {
+  enabled: boolean;
   selector: WalletSelector | null;
   accountId: string | null;
   connecting: boolean;
+  initError: string | null;
   signIn: () => void;
   signOut: () => Promise<void>;
 }
 
 const Ctx = createContext<WalletCtx>({
+  enabled: false,
   selector: null,
   accountId: null,
-  connecting: true,
+  connecting: false,
+  initError: null,
   signIn: () => {},
   signOut: async () => {},
 });
 
-export function WalletProvider({ children }: { children: ReactNode }) {
+/** enabled=false keeps the selector un-mounted in FIXTURE/LIVE modes. */
+export function WalletProvider({ children, enabled = false }: { children: ReactNode; enabled?: boolean }) {
   const [selector, setSelector] = useState<WalletSelector | null>(null);
   const [modal, setModal] = useState<{ show: () => void } | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
-  const [connecting, setConnecting] = useState(true);
+  const [connecting, setConnecting] = useState(enabled);
+  const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!enabled) return;
     let disposed = false;
+    let subscription: { unsubscribe: () => void } | null = null;
     (async () => {
       const sel = await setupWalletSelector({
         network: 'testnet',
         modules: [setupMyNearWallet()],
       });
-      const m = setupModal(sel, { contractId: ACCESS_CONTRACT });
+      const m = setupModal(sel, { contractId: process.env.NEXT_PUBLIC_ACCESS_CONTRACT_ID ?? 'keyfolio-access.testnet' });
       if (disposed) return;
       setSelector(sel);
       setModal(m);
@@ -64,15 +71,19 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setAccountId(active?.accountId ?? null);
       };
       apply(sel.store.getState());
-      sel.store.observable.subscribe(apply);
+      subscription = sel.store.observable.subscribe(apply);
       setConnecting(false);
-    })().catch(() => {
-      if (!disposed) setConnecting(false);
+    })().catch((err) => {
+      if (!disposed) {
+        setInitError(String((err as Error).message ?? err).slice(0, 200));
+        setConnecting(false);
+      }
     });
     return () => {
       disposed = true;
+      subscription?.unsubscribe();
     };
-  }, []);
+  }, [enabled]);
 
   const signIn = useCallback(() => {
     modal?.show();
@@ -85,8 +96,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, [selector]);
 
   const value = useMemo(
-    () => ({ selector, accountId, connecting, signIn, signOut }),
-    [selector, accountId, connecting, signIn, signOut],
+    () => ({ enabled, selector, accountId, connecting, initError, signIn, signOut }),
+    [enabled, selector, accountId, connecting, initError, signIn, signOut],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

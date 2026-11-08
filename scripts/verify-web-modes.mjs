@@ -17,7 +17,7 @@ const webDir = join(here, '..', 'apps', 'web');
 const NEXT_BIN = join(webDir, 'node_modules', 'next', 'dist', 'bin', 'next');
 const BASE_PORT = 3311;
 
-const ROUTES = ['/', '/traders/carla', '/checkout/carla'];
+const ROUTES = ['/', '/traders/carla', '/checkout/carla', '/keys', '/studio', '/private', '/api-access', '/activity'];
 
 // Fixture markers that must NEVER appear outside FIXTURE mode.
 const FIXTURE_MARKERS = ['Carla', 'carla.near', '+214.50', '25.000000', '8.24', 'DeltaOne', 'Esteban'];

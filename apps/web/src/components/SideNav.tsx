@@ -11,10 +11,7 @@ const ITEMS: { label: string; href?: string }[] = [
   { label: 'Activity', href: '/activity' },
 ];
 
-/**
- * Sidebar navigation. Unbuilt destinations are visibly disabled (aria-disabled
- * + visible note) instead of dead links; the active item follows the route.
- */
+/** Sidebar navigation; the active item follows the route (aria-current). */
 export function SideNav() {
   const pathname = usePathname();
   return (

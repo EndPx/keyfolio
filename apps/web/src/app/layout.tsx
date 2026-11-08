@@ -44,18 +44,30 @@ function EnvBanner() {
       </div>
     );
   }
+  if (mode === 'TESTNET') {
+    return (
+      <div className="banner" role="status">
+        <span className="dot dot-live" aria-hidden="true" />
+        <span>
+          <strong>TESTNET</strong> · near {network} · live contract queries + wallet signing wired ·
+          no fixture fallback is served in this mode.
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="banner" role="status">
       <span className="dot dot-block" aria-hidden="true" />
       <span>
-        <strong>{mode}</strong> · near {network} · data source not connected yet (KF-08b in
-        progress) — no fixture fallback is served in this mode.
+        <strong>{mode}</strong> · near {network} · data source not connected (mainnet flows are not
+        authorized) — no fixture fallback is served in this mode.
       </span>
     </div>
   );
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const cfg = getWebConfig();
   return (
     <html lang="en" className={`${inter.variable} ${baloo.variable}`}>
       <body>
@@ -64,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <EnvBanner />
         <div className="shell">
-          <WalletProvider>
+          <WalletProvider enabled={cfg.ok && cfg.mode === 'TESTNET'}>
             <SideNav />
             <main className="main" id="main">
               {children}

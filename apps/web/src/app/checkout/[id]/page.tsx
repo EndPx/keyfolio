@@ -32,7 +32,11 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
       <section aria-labelledby="page-title">
         <h1 id="page-title" className="page-title">Checkout</h1>
         <p className="sample-note">{cfg.mode} mode · live contract data · no fixture numbers on this page</p>
-        <CheckoutTestnet />
+        <CheckoutTestnet
+          rpcUrl='https://rpc.testnet.near.org'
+          accessContract={process.env.NEXT_PUBLIC_ACCESS_CONTRACT_ID ?? 'keyfolio-access.testnet'}
+          traderId={process.env.NEXT_PUBLIC_DEMO_TRADER_ID ?? 'keyfolio-ops.testnet'}
+        />
       </section>
     );
   }
