@@ -123,7 +123,6 @@ export const CARLA_TWR_SERIES: { date: string; pct: number }[] = [
 ];
 
 export const CARLA_PROFILE = {
-  gradient: ['#5B93FF', '#1B44CE'] as [string, string],
   name: 'Carla',
   handle: 'carla.near',
   approach: 'Momentum on NEAR majors · tracking since Oct 8, 2026',

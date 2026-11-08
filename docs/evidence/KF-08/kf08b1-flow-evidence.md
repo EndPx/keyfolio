@@ -34,6 +34,15 @@ Environment: Next.js 16.4.5 / React 19.3.1; @keyfolio/domain reused for FAIL-CLO
 - **package.json/pnpm-lock reconciled** in this commit; resolver-value.test.mjs runs inside `pnpm test:run` (glob `scripts/testnet/*.test.mjs`) — verified by running the command and observing the full-suite result of **95/95 pass / 0 fail** in one combined run.
 - **Temporary known limitation**: the `--test-force-exit` flag remains on test:run because PGlite teardown inside the combined node:test process crashes V8 during isolate disposal; normal cleanup is NOT proven yet.
 
+## Reviewer pass 3 (2026-11-09) — ACCEPT
+
+All three required pass-2 findings verified fixed (badges restyled with
+AA-computed contrast, ink tokens retuned, --ink32 defined; hue discipline
+holds). One residual NIT cleaned in this commit: dormant duplicate
+CARLA_PROFILE.gradient removed (seller.gradient is the single source) and
+dead --up-ink/.chip-* classes deleted. KF-08b.1 is review-complete at the
+worker level; user/Codex-level acceptance stays a separate record.
+
 ## Known limitations (follow-up, not this milestone)
 
 - TESTNET/LIVE pages render the not-connected state: contract price queries, wallet signing (NEP-413/wallet standard per G04), and real entitlement checks are the next KF-08b increments.

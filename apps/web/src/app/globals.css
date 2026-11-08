@@ -22,7 +22,6 @@
   --ghost-border: rgba(255, 255, 255, 0.09);
   --up: #2bd87a;
   --up-bg: rgba(43, 216, 122, 0.14);
-  --up-ink: #04160c;
   --down: #ff453a;
   --down-bg: rgba(255, 69, 58, 0.14);
   --warn: #e8c64a;
@@ -150,16 +149,6 @@ a:hover { text-decoration: none; }
   flex: 0 0 auto;
   position: relative;
 }
-
-/* P&L chips (green/red reserved for P&L, sign always present) */
-.chip {
-  display: inline-flex; align-items: center;
-  border-radius: 999px; padding: 4px 10px;
-  font-size: 11px; line-height: 16px; font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.chip-up { background: var(--up-bg); color: var(--up); }
-.chip-down { background: var(--down-bg); color: var(--down); }
 
 .return-block { display: flex; flex-direction: column; gap: 4px; }
 .return-value { font-size: 38px; line-height: 44px; font-weight: 700; letter-spacing: -1.2px; }
