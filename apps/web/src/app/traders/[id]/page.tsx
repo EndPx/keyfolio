@@ -24,18 +24,27 @@ function TwrChart() {
         <span className="chart-legend">Percent change vs period start · Oct 8 – Nov 7, 2026 · updated daily · no private balances or positions shown</span>
       </figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Tracked return (TWR) over the last 30 days, from 0% to +8.24%" className="chart-svg">
+        <defs>
+          <linearGradient id="twr-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2BD87A" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#2BD87A" stopOpacity="0" />
+          </linearGradient>
+        </defs>
         {grid.map((g) => (
           <g key={g.pct}>
             <line x1={padL} y1={g.y} x2={W - 16} y2={g.y} className="chart-grid" />
             <text x={padL - 8} y={g.y + 4} textAnchor="end" className="chart-label">+{g.pct}%</text>
           </g>
         ))}
-        <polyline points={pts.join(' ')} fill="none" stroke="#2457D6" strokeWidth="2" />
+        <polygon points={`${padL},${H - padB} ${pts.join(' ')} ${W - 16},${H - padB}`} className="chart-area" stroke="none" />
+        <polyline points={pts.join(' ')} fill="none" stroke="#2BD87A" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <circle cx={pts[pts.length - 1].split(',')[0]} cy={pts[pts.length - 1].split(',')[1]} r="3.2" fill="#2BD87A" />
         {[
-          { i: 0, label: 'Oct 8' },
-          { i: Math.floor(CARLA_TWR_SERIES.length / 2), label: 'Oct 23' },
-          { i: CARLA_TWR_SERIES.length - 1, label: 'Nov 7' },
-        ].map(({ i, label }) => {
+          { i: 0 },
+          { i: Math.floor(CARLA_TWR_SERIES.length / 2) },
+          { i: CARLA_TWR_SERIES.length - 1 },
+        ].map(({ i }) => {
+          const label = CARLA_TWR_SERIES[i].date;
           const x = padL + (i / (CARLA_TWR_SERIES.length - 1)) * (W - padL - 16);
           return (
             <text key={label} x={x} y={H - 8} textAnchor="middle" className="chart-label">{label}</text>
@@ -86,7 +95,11 @@ export default async function TraderPage({ params }: { params: Promise<{ id: str
       <p className="sample-note">Illustrative sample — not real performance · metrics computed by Keyfolio only</p>
       <>
         <header className="profile-head">
-          <span className="avatar avatar-xl" aria-hidden="true" />
+          <span
+            className="orb"
+            aria-hidden="true"
+            style={{ background: 'radial-gradient(circle at 32% 26%, #5B93FF, #1B44CE 74%)' }}
+          />
           <div>
             <h1 id="page-title" className="page-title">{p.name}</h1>
             <p className="meta-line">{p.approach}</p>
@@ -96,17 +109,17 @@ export default async function TraderPage({ params }: { params: Promise<{ id: str
 
         <div className="metric-cards">
           <div className="card metric-card">
-            <span className="metric-label">NET PNL · 30D · USD</span>
+            <p className="eyebrow">Net PnL · 30d · USD</p>
             <span className="metric-value pos">+{p.netPnlUsd.toFixed(2)} USD</span>
             <span className="metric-note">{p.settledSwaps} settled swaps · complete coverage</span>
           </div>
           <div className="card metric-card">
-            <span className="metric-label">TWR · 30D</span>
+            <p className="eyebrow">TWR · 30d</p>
             <span className="metric-value pos">{p.returnPct.toFixed(2)}%</span>
             <span className="metric-note">cash-flow adjusted</span>
           </div>
           <div className="card metric-card">
-            <span className="metric-label">MAX DRAWDOWN · 30D</span>
+            <p className="eyebrow">Max drawdown · 30d</p>
             <span className="metric-value neg">{p.maxDrawdownPct.toFixed(2)}%</span>
             <span className="metric-note">peak-to-trough, wealth index</span>
           </div>

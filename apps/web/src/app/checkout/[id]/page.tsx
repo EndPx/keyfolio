@@ -62,10 +62,12 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
         <div className="card checkout-card">
           <h2 className="checkout-title">Buy access NFT — {seller.handle}</h2>
           <div className="checkout-rows">
-            <p className="checkout-line">Term: 30 days · 2,592,000 seconds (plan configuration)</p>
-            <p className="checkout-line">Price: 25.000000 KF-TEST (exact atomic amount: {PLAN.priceAtomic})</p>
+            <p className="checkout-line">
+              Term: {PLAN.termDays} days · {PLAN.termSeconds.toLocaleString('en-US')} seconds (plan configuration)
+            </p>
+            <p className="checkout-line">Price: {PLAN.priceLabel.replace(' KF-TEST', '.000000 KF-TEST')} (exact atomic amount: {PLAN.priceAtomic})</p>
             <p className="checkout-line">Storage deposit: {PLAN.storageNear}</p>
-            <p className="checkout-line">Network: NEAR {PLAN.network} · FT: KF-TEST (testnet mock)</p>
+            <p className="checkout-line">Network: NEAR {PLAN.network} · FT: {PLAN.paymentToken}</p>
           </div>
           <div className="refund-note">
             <p>

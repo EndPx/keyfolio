@@ -27,7 +27,11 @@ export default function MarketplacePage() {
           {MARKET_SELLERS.map((s) => (
             <article key={s.id} className="card seller-card">
               <header className="seller-head">
-                <span className="avatar avatar-lg" aria-hidden="true" />
+                <span
+                  className="orb"
+                  aria-hidden="true"
+                  style={{ background: `radial-gradient(circle at 32% 26%, ${s.gradient[0]}, ${s.gradient[1]} 74%)` }}
+                />
                 <div className="seller-names">
                   <span className="seller-name">{s.name}</span>
                   <span className="seller-handle">{s.handle}</span>
@@ -38,7 +42,7 @@ export default function MarketplacePage() {
               </header>
               <p className="seller-approach">{s.approach}</p>
               <div className="return-block">
-                <span className="metric-label">TRACKED RETURN · 30 DAYS (TWR)</span>
+                <p className="eyebrow">Tracked return · 30 days (TWR)</p>
                 {s.returnPct !== null ? (
                   <span className={`return-value ${s.returnPct >= 0 ? 'pos' : 'neg'}`}>
                     {s.returnPct >= 0 ? '+' : ''}
@@ -50,19 +54,19 @@ export default function MarketplacePage() {
               </div>
               <dl className="metric-row">
                 <div>
-                  <dt>NET PNL · 30D (USD)</dt>
+                  <dt>Net PnL · 30d · USD</dt>
                   <dd className={s.netPnlUsd === null ? 'muted' : s.netPnlUsd >= 0 ? 'pos' : 'neg'}>
                     {s.netPnlUsd === null ? '— unavailable' : `${s.netPnlUsd >= 0 ? '+' : ''}${s.netPnlUsd.toFixed(2)} USD`}
                   </dd>
                 </div>
                 <div>
-                  <dt>MAX DRAWDOWN · 30D</dt>
+                  <dt>Max drawdown · 30d</dt>
                   <dd className={s.maxDrawdownPct === null ? 'muted' : 'neg'}>
                     {s.maxDrawdownPct === null ? '— unavailable' : `${s.maxDrawdownPct.toFixed(2)}%`}
                   </dd>
                 </div>
                 <div>
-                  <dt>SETTLED SWAPS · 30D</dt>
+                  <dt>Settled swaps · {s.state === "complete" ? "30d" : `since ${s.trackedSince}`}</dt>
                   <dd>{s.settledSwaps === null ? '— unavailable' : s.settledSwaps}</dd>
                 </div>
               </dl>

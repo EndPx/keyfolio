@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter, Baloo_2 } from 'next/font/google';
 import './globals.css';
 import { getWebConfig } from '../config';
+import { SideNav } from '../components/SideNav';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const baloo = Baloo_2({ subsets: ['latin'], weight: ['800'], variable: '--font-baloo' });
 
 export const metadata: Metadata = {
   title: 'Keyfolio',
@@ -17,8 +22,11 @@ function EnvBanner() {
   if (!cfg.ok) {
     return (
       <div className="banner banner-error" role="status">
-        <span className="badge badge-error">CONFIG</span>
-        <span>{cfg.error} — copy .env.example to .env and set KEYFOLIO_MODE.</span>
+        <span className="dot dot-block" aria-hidden="true" />
+        <span>
+          <strong>Configuration error.</strong> {cfg.error} — copy .env.example (in apps/web) to
+          apps/web/.env.local and set KEYFOLIO_MODE. No data is shown until then.
+        </span>
       </div>
     );
   }
@@ -27,44 +35,38 @@ function EnvBanner() {
   if (mode === 'FIXTURE') {
     return (
       <div className="banner" role="status">
-        <span className="badge badge-warn">FIXTURE</span>
-        <span>Illustrative sample data — no live account, no real performance.</span>
+        <span className="dot dot-warn" aria-hidden="true" />
+        <span>
+          <strong>FIXTURE</strong> · target NEAR testnet · illustrative sample data — no live
+          account, no real performance.
+        </span>
       </div>
     );
   }
   return (
     <div className="banner" role="status">
-      <span className="badge badge-warn">{mode}</span>
-      <span>near {network} · data source not connected yet (KF-08b in progress) — no fixture fallback is served in this mode.</span>
+      <span className="dot dot-block" aria-hidden="true" />
+      <span>
+        <strong>{mode}</strong> · near {network} · data source not connected yet (KF-08b in
+        progress) — no fixture fallback is served in this mode.
+      </span>
     </div>
   );
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${baloo.variable}`}>
       <body>
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
         <EnvBanner />
         <div className="shell">
-          <nav className="sidebar" aria-label="Primary">
-            <div className="logo-row">
-              <span className="logo-mark" aria-hidden="true">K</span>
-              <span className="logo-text">Keyfolio</span>
-            </div>
-            <div className="nav-links">
-              <a className="nav-link active" href="/">Marketplace</a>
-              <span className="nav-link disabled" title="Later KF-08b milestone">My Keys</span>
-              <span className="nav-link disabled" title="Later KF-08b milestone">Private Account</span>
-              <span className="nav-link disabled" title="Later KF-08b milestone">API Access</span>
-              <span className="nav-link disabled" title="Later KF-08b milestone">Trader Studio</span>
-              <span className="nav-link disabled" title="Later KF-08b milestone">Activity</span>
-            </div>
-            <div className="user-row">
-              <span className="avatar" aria-hidden="true" />
-              <span className="user-text">demo user</span>
-            </div>
-          </nav>
-          <main className="main">{children}</main>
+          <SideNav />
+          <main className="main" id="main">
+            {children}
+          </main>
         </div>
       </body>
     </html>

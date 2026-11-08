@@ -28,6 +28,8 @@ export type SellerState = 'complete' | 'partial' | 'insufficient';
 
 export interface MarketSeller {
   id: string; // profile slug
+  /** Xorr-style identity gradient: radial-gradient(circle at 32% 26%, c1, c2 74%). */
+  gradient: [string, string];
   name: string;
   handle: string;
   state: SellerState;
@@ -47,6 +49,7 @@ export interface MarketSeller {
 export const MARKET_SELLERS: MarketSeller[] = [
   {
     id: 'carla',
+    gradient: ['#5B93FF', '#1B44CE'],
     name: 'Carla',
     handle: 'carla.near',
     state: 'complete',
@@ -64,6 +67,7 @@ export const MARKET_SELLERS: MarketSeller[] = [
   },
   {
     id: 'deltaone',
+    gradient: ['#F0BE55', '#C98518'],
     name: 'DeltaOne',
     handle: 'deltaone.near',
     state: 'partial',
@@ -81,6 +85,7 @@ export const MARKET_SELLERS: MarketSeller[] = [
   },
   {
     id: 'esteban',
+    gradient: ['#49E39B', '#12A45F'],
     name: 'Esteban',
     handle: 'esteban.near',
     state: 'insufficient',
