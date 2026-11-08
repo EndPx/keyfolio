@@ -127,3 +127,11 @@ Discovery ordering: default newest active profiles; performance sorting only com
 Sample data in FigCraft is labeled "Illustrative sample" and never presented as real trader performance; synthetic-data app runs carry accurate FIXTURE/TESTNET labels; the not-yet-selected payment token stays a placeholder. Rendering the .figcraft file is a review artifact, not user design approval.
 
 Chain execution order is TESTNET first, mainnet later. Sandbox/local tests remain authorized; actual testnet account creation, funding and deployment still require the user's selected account/signing route and exact prepared steps. No mainnet action without its existing explicit authorization.
+
+## KF-D016 — Visual direction: Xorr-inspired dark trading UI
+
+Date:2026-11-09. Owner:user. Status:binding design direction (supersedes the visual tokens of DESIGN.md v1 for product screens; DESIGN.md's honesty/state/accessibility contract stays binding).
+
+The user approved the hackathon prototype direction and directed the UI/UX to follow https://github.com/nickthelegend/xorr-solana (its published design document ui/mobile-ui/design.md). Adopted language for Keyfolio web screens: true-black background (#000000) with dark surfaces (#0C0C0D/#141516/#1B1C1E), hairline borders (rgba(255,255,255,.05-.09)), the white ink scale, Inter for all text with tabular numerals (Baloo 2 ExtraBold wordmark only), eyebrow labels (10-11px, 600, +.12em, uppercase), large radius scale (cards 22-26px, primary buttons pill 30-34px), minimal shadows, and radial-gradient identity marks for sellers. Green/red are RESERVED for P&L only; selection state is white-on-dark. Data-dense, receipt-and-proof-first layouts.
+
+Unchanged by this pivot: every honesty requirement (illustrative-sample labels, unavailable-with-reason metrics, sales blocking per coverage/source health, "Tracked performance" wording), accessibility targets, and the acceptance matrix. No new features are introduced by the restyle. Keyfolio does not copy Xorr assets or code — only the published visual language is referenced.
