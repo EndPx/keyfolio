@@ -17,3 +17,27 @@ test('landing owns its marketing route and does not render the app shell', async
   assert.match(page, /LandingClient/);
   assert.doesNotMatch(layout, /SideNav|EnvBanner/);
 });
+
+test('landing uses a sparse staged journey with the product relationship in the first visual', async () => {
+  const source = await readFile(new URL('../src/components/LandingClient.tsx', import.meta.url), 'utf8');
+  const css = await readFile(new URL('../src/app/globals.css', import.meta.url), 'utf8');
+  assert.match(source, /relationship-map/);
+  assert.match(source, /journey-sticky/);
+  assert.match(source, /scene-stage/);
+  assert.match(source, /Choose a trader/);
+  assert.match(source, /Compare coverage/);
+  assert.match(source, /Buy access key/);
+  assert.match(source, /Unlock private\/API/);
+  assert.match(source, /Copy when eligible/);
+  assert.doesNotMatch(source, /process-step|proof-grid/);
+  assert.match(css, /\.journey-section\{position:relative;min-height:500vh/);
+  assert.match(css, /\.landing\[data-step="4"\] \.scene-art/);
+});
+
+test('landing keeps CTA hierarchy and accessible mode status', async () => {
+  const source = await readFile(new URL('../src/components/LandingClient.tsx', import.meta.url), 'utf8');
+  assert.match(source, /className="sr-only" role="status"/);
+  assert.match(source, /Browse traders/);
+  assert.match(source, /Open the demo/);
+  assert.doesNotMatch(source, /hero-scenario|wallet-state/);
+});

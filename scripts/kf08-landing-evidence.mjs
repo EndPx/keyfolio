@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 
 const baseUrl = process.env.KEYFOLIO_LANDING_URL ?? 'http://localhost:3100/';
-const out = 'docs/evidence/KF-08/landing-separation';
+const out = 'docs/evidence/KF-08/landing-cleanup';
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' });
 
@@ -17,6 +17,15 @@ for (const [name, width, height, reduced] of [
     overflow: document.documentElement.scrollWidth > window.innerWidth,
     marketingNav: Boolean(document.querySelector('.landing-nav')),
     appShell: Boolean(document.querySelector('.sidebar, .banner')),
+    heroScenario: document.querySelectorAll('.hero-scenario').length,
+    heroImage: Boolean(document.querySelector('.hero-stage .hero-art')),
+    bannedCopy: Array.from(document.querySelectorAll('.landing-hero *:not(.sr-only)')).some((node) => node.children.length === 0 && /Demo mode is (simulated|open)\./.test(node.textContent ?? '')),
+    visibleStatus: (() => {
+      const node = document.querySelector('[role="status"]');
+      if (!node) return false;
+      const style = getComputedStyle(node);
+      return style.display !== 'none' && style.visibility !== 'hidden' && style.clip !== 'rect(0px, 0px, 0px, 0px)' && node.getBoundingClientRect().width > 1;
+    })(),
   }));
   const cta = await page.getByRole('button', { name: /Open the demo|Demo opened|Wallet unavailable|Connect NEAR wallet/ }).count();
   const scenario = await page.locator('.hero-scenario span').count();
@@ -26,6 +35,7 @@ for (const [name, width, height, reduced] of [
     await page.waitForTimeout(180);
   }
   await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
+  if (result.heroScenario !== 0 || scenario !== 0 || result.bannedCopy || result.visibleStatus || !result.heroImage) throw new Error('hero cleanup failed for ' + name + ': ' + JSON.stringify({ ...result, cta, scenario, reduced }));
   console.log(name, JSON.stringify({ ...result, cta, scenario, reduced }));
   await page.close();
 }

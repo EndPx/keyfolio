@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 
 const url = process.env.KEYFOLIO_LANDING_URL ?? 'http://localhost:3100/';
-const out = '.deploy-local/motion-audit';
+const out = '.deploy-local/motion-audit-cleanup';
 await mkdir(out, { recursive: true });
 const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 
@@ -25,5 +25,5 @@ async function capture(name, reducedMotion) {
   console.log(JSON.stringify({ name, reducedMotion, path, durationMs: 650 + 6 * 2100 }));
 }
 
-if (process.env.ONLY_REDUCED === '1') await capture('keyfolio-total-redesign-reduced', true);
-else await capture('keyfolio-total-redesign', false);
+if (process.env.ONLY_REDUCED === '1') await capture('keyfolio-landing-cleanup-reduced', true);
+else await capture('keyfolio-landing-cleanup', false);
