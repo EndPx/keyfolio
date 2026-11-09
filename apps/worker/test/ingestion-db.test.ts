@@ -14,6 +14,7 @@ import {
   countIngested,
   CursorConflictError,
   readCursor,
+  recordBalanceReconciliation,
   type IngestBatch,
   type IngestDb,
   type IngestEvent,
@@ -27,7 +28,7 @@ before(async () => {
   pglite = new PGlite();
   // The seam only uses query/transaction; PGlite satisfies it structurally.
   db = pglite as unknown as IngestDb;
-  for (const file of ['0001_initial.sql', '0002_cursor_version.sql']) {
+  for (const file of ['0001_initial.sql', '0002_cursor_version.sql', '0003_kf03_reconciliation.sql']) {
     const sql = readFileSync(join(migrationDir, file), 'utf8');
     await pglite.exec(`BEGIN;\n${sql}\nCOMMIT;`);
   }
@@ -60,6 +61,7 @@ function ev(partial: {
   revision?: number;
   status?: IngestEvent['status'];
   type?: IngestEvent['type'];
+  supersedesEventKey?: string | null;
   provenance?: string | null;
   movements?: IngestEvent['movements'];
   occurredAtMs?: number;
@@ -73,6 +75,7 @@ function ev(partial: {
     sourceExecutionAtMs: (partial.occurredAtMs ?? 1_700_000_000_000) + 1_000,
     observedAtMs: (partial.occurredAtMs ?? 1_700_000_000_000) + 2_000,
     provenance: partial.provenance ?? null,
+    supersedesEventKey: partial.supersedesEventKey ?? null,
     movements: partial.movements ?? [
       { assetId: 'testnet:near', movementIndex: 0, kind: 'TRADE_LEG', signedDelta: '-1000000000000000000000000' },
       { assetId: 'testnet:usdc', movementIndex: 1, kind: 'TRADE_LEG', signedDelta: '25000000' },
@@ -212,18 +215,80 @@ test('binding boundaries: wrong-network event FK + asset ids must carry the batc
 });
 
 // Money stays canonical integer strings at the storage boundary.
-test('money: non-canonical deltas are rejected before storage (domain rule reuse)', async () => {
+test('money: non-canonical deltas are quarantined without storage effects', async () => {
   const binding = '66666666-6666-4666-8666-666666666666';
   await seedBinding(binding);
   const bad = ev({
     sourceEventId: 'money-1',
     movements: [{ assetId: 'testnet:near', movementIndex: 0, kind: 'TRADE_LEG', signedDelta: '1.5' }],
   });
-  await assert.rejects(
-    applyIngestBatch(db, batch(binding, 'c1', 0, [bad])),
-    /canonical signed/,
-  );
-  assert.deepEqual(await countIngested(db, binding, NETWORK), { events: 0, movements: 0 });
+  const result = await applyIngestBatch(db, batch(binding, 'c1', 0, [bad]));
+  assert.ok(result.applied && result.eventsInserted === 1);
+  assert.deepEqual(await countIngested(db, binding, NETWORK), { events: 1, movements: 0 });
+  const q = await db.query(`SELECT reason FROM ledger_quarantines WHERE event_id IN (SELECT id FROM ledger_events WHERE source_event_id = 'money-1')`);
+  assert.match(String((q.rows[0] as { reason: string }).reason), /canonical signed/);
+});
+
+test('L04: unknown movement kind is quarantined and never becomes a balance effect', async () => {
+  const binding = '99999999-9999-4999-8999-999999999999';
+  await seedBinding(binding);
+  const result = await applyIngestBatch(db, batch(binding, 'q1', 0, [ev({
+    sourceEventId: 'unknown-1',
+    movements: [{ assetId: 'testnet:near', movementIndex: 0, kind: 'MYSTERY_AIRDROP', signedDelta: '7' }],
+  })]));
+  assert.ok(result.applied);
+  assert.deepEqual(await countIngested(db, binding, NETWORK), { events: 1, movements: 0 });
+  const q = await db.query(`SELECT reason FROM ledger_quarantines WHERE event_id IN (SELECT id FROM ledger_events WHERE source_event_id = 'unknown-1')`);
+  assert.match(String((q.rows[0] as { reason: string }).reason), /MYSTERY_AIRDROP/);
+});
+
+test('L03: correction reverses the original once and posts corrected movements', async () => {
+  const binding = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  await seedBinding(binding);
+  const original = ev({ sourceEventId: 'corr-original', movements: [{ assetId: 'testnet:near', movementIndex: 0, kind: 'TRADE_LEG', signedDelta: '10' }] });
+  const key = `${PROVIDER}\u0000${binding}\u0000corr-original\u00001`;
+  await applyIngestBatch(db, batch(binding, 'c1', 0, [original]));
+  const correction = ev({ sourceEventId: 'corr-fix', type: 'CORRECTION', supersedesEventKey: key, movements: [{ assetId: 'testnet:near', movementIndex: 0, kind: 'TRADE_LEG', signedDelta: '4' }] });
+  await applyIngestBatch(db, batch(binding, 'c2', 1, [correction]));
+  const rows = await db.query(`SELECT signed_delta::text AS d, classification FROM asset_movements m JOIN ledger_events e ON e.id = m.event_id WHERE e.binding_id = $1`, [binding]);
+  const effects = rows.rows.map((r) => [String((r as { d: string }).d), String((r as { classification: string }).classification)]).sort((a, b) => `${a[1]}:${a[0]}`.localeCompare(`${b[1]}:${b[0]}`));
+  assert.deepEqual(effects, [['-10', 'CORRECTION_REVERSAL'], ['10', 'TRADE_LEG'], ['4', 'TRADE_LEG']]);
+  const retry = await applyIngestBatch(db, batch(binding, 'c3', 2, [correction]));
+  assert.ok(retry.applied && retry.eventsInserted === 0);
+  assert.equal((await db.query(`SELECT count(*)::int AS n FROM asset_movements m JOIN ledger_events e ON e.id = m.event_id WHERE e.binding_id = $1`, [binding])).rows[0]!.n, 3);
+});
+
+test('L05 and health dimensions: exact reconciliation records balanced and idle readable state', async () => {
+  const binding = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  await seedBinding(binding);
+  const result = await recordBalanceReconciliation(db, {
+    bindingId: binding, network: NETWORK, snapshotAtMs: 1_700_000_000_000, sourceExecutionAtMs: 1_700_000_000_000,
+    provenance: 'fixture:balance-read', opening: [{ assetId: 'testnet:near', balanceAtomic: '100' }],
+    closing: [{ assetId: 'testnet:near', balanceAtomic: '90' }], confirmedDeltas: [{ assetId: 'testnet:near', delta: -10n }],
+    observedAtMs: 1_700_000_001_000, accessState: 'READABLE', freshnessState: 'FRESH', coverageState: 'COMPLETE', schemaState: 'VALID', lastTradeAtMs: null,
+  });
+  assert.equal(result.reconciliation, 'BALANCED');
+  const health = await db.query(`SELECT access_state, freshness_state, coverage_state, reconciliation_state, last_trade_at FROM source_health_observations WHERE binding_id = $1`, [binding]);
+  assert.deepEqual(health.rows[0], { access_state: 'READABLE', freshness_state: 'FRESH', coverage_state: 'COMPLETE', reconciliation_state: 'BALANCED', last_trade_at: null });
+  const mismatch = await recordBalanceReconciliation(db, {
+    bindingId: binding, network: NETWORK, snapshotAtMs: 1_700_000_002_000, sourceExecutionAtMs: null,
+    provenance: 'fixture:balance-read', opening: [{ assetId: 'testnet:near', balanceAtomic: '90' }],
+    closing: [{ assetId: 'testnet:near', balanceAtomic: '80' }], confirmedDeltas: [], observedAtMs: 1_700_000_003_000,
+    accessState: 'READABLE', freshnessState: 'FRESH', coverageState: 'PARTIAL', schemaState: 'VALID', lastTradeAtMs: null,
+  });
+  assert.equal(mismatch.reconciliation, 'MISMATCH');
+});
+
+test('reconciliation rejects negative snapshot amounts without partial records', async () => {
+  const binding = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  await seedBinding(binding);
+  await assert.rejects(recordBalanceReconciliation(db, {
+    bindingId: binding, network: NETWORK, snapshotAtMs: 1_700_000_000_000, sourceExecutionAtMs: null,
+    provenance: 'fixture:negative', opening: [{ assetId: 'testnet:near', balanceAtomic: '0' }],
+    closing: [{ assetId: 'testnet:near', balanceAtomic: '-1' }], confirmedDeltas: [], observedAtMs: 1_700_000_001_000,
+    accessState: 'READABLE', freshnessState: 'FRESH', coverageState: 'COMPLETE', schemaState: 'VALID', lastTradeAtMs: null,
+  }));
+  assert.equal((await db.query(`SELECT count(*)::int AS n FROM balance_snapshots WHERE binding_id = $1`, [binding])).rows[0]!.n, 0);
 });
 
 // Account-following: activity from outside Keyfolio is a first-class input.

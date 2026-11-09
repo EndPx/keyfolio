@@ -1,4 +1,4 @@
-// Apply the app-owned initial migration to an EXPLICITLY LOCAL, ephemeral
+// Apply the app-owned migrations to an EXPLICITLY LOCAL, ephemeral
 // PostgreSQL engine (PGlite). No DATABASE_URL is read here; this command never
 // targets an external server.
 //
@@ -12,7 +12,7 @@ export async function main(): Promise<number> {
   const db = new PGlite();
   await db.exec(`BEGIN;\n${loadMigrationSql()}\nCOMMIT;`);
   const version = await db.query<{ v: string }>('SELECT version() AS v');
-  console.log(`[db-migrate:local] applied initial migration to ephemeral PGlite engine: ${version.rows[0]!.v}`);
+  console.log(`[db-migrate:local] applied app migrations to ephemeral PGlite engine: ${version.rows[0]!.v}`);
   return 0;
 }
 

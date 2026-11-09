@@ -1,4 +1,4 @@
-// Apply the app-owned initial migration to an EXTERNAL PostgreSQL server.
+// Apply the app-owned migrations to an EXTERNAL PostgreSQL server.
 //
 //   pnpm db:migrate            -> requires DATABASE_URL; fails (exit 1) if absent,
 //                                 with no implicit fallback to the ephemeral engine.
@@ -24,7 +24,7 @@ async function applyExternal(url: string): Promise<void> {
   } finally {
     await client.end();
   }
-  console.log('[db-migrate] applied initial migration to external PostgreSQL (DATABASE_URL provided, not printed).');
+  console.log('[db-migrate] applied app migrations to external PostgreSQL (DATABASE_URL provided, not printed).');
 }
 
 export async function main(): Promise<number> {

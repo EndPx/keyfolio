@@ -1,13 +1,24 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
 export function loadMigrationSql(): string {
-  return readFileSync(join(here, '..', 'apps', 'api', 'migrations', '0001_initial.sql'), 'utf8');
+  const dir = join(here, '..', 'apps', 'api', 'migrations');
+  return readdirSync(dir)
+    .filter((name) => /^\d+_.*\.sql$/.test(name) && !name.endsWith('.down.sql'))
+    .sort()
+    .map((name) => readFileSync(join(dir, name), 'utf8'))
+    .join('\n');
 }
 
 export function loadDownSql(): string {
-  return readFileSync(join(here, '..', 'apps', 'api', 'migrations', '0001_initial.down.sql'), 'utf8');
+  const dir = join(here, '..', 'apps', 'api', 'migrations');
+  return readdirSync(dir)
+    .filter((name) => /^\d+_.*\.down\.sql$/.test(name))
+    .sort()
+    .reverse()
+    .map((name) => readFileSync(join(dir, name), 'utf8'))
+    .join('\n');
 }
