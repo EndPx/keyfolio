@@ -1,12 +1,13 @@
 ﻿'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getLandingWalletState, type LandingMode } from './landingContract';
 import { useWallet } from '../wallet/WalletContext';
 
 export function LandingClient({ mode, configError }: { mode: LandingMode; configError: string | null }) {
   const wallet = useWallet();
   const [fixturePreview, setFixturePreview] = useState(false);
+  const heroVisualRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     document.querySelector('.landing')?.classList.add('motion-ready');
     const nodes = Array.from(document.querySelectorAll<HTMLElement>('.landing .reveal'));
@@ -18,6 +19,40 @@ export function LandingClient({ mode, configError }: { mode: LandingMode; config
     return () => {
       observer.disconnect();
       document.querySelector('.landing')?.classList.remove('motion-ready');
+    };
+  }, []);
+  useEffect(() => {
+    const visual = heroVisualRef.current;
+    if (!visual || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let frame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    let scrollY = window.scrollY;
+    const apply = () => {
+      frame = 0;
+      const rect = visual.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const x = Math.max(-1, Math.min(1, (pointerX - centerX) / Math.max(rect.width / 2, 1)));
+      const y = Math.max(-1, Math.min(1, (pointerY - centerY) / Math.max(rect.height / 2, 1)));
+      const scrollOffset = Math.max(-1, Math.min(1, (scrollY - window.innerHeight * 0.12) / Math.max(window.innerHeight, 1)));
+      visual.style.setProperty('--hero-parallax-x', `${(x * 10).toFixed(2)}px`);
+      visual.style.setProperty('--hero-parallax-y', `${(y * 8 - scrollOffset * 5).toFixed(2)}px`);
+      visual.style.setProperty('--hero-parallax-rotate', `${(x * 1.2).toFixed(2)}deg`);
+    };
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(apply); };
+    const onPointerMove = (event: PointerEvent) => { pointerX = event.clientX; pointerY = event.clientY; schedule(); };
+    const onPointerLeave = () => { pointerX = window.innerWidth / 2; pointerY = window.innerHeight / 2; schedule(); };
+    const onScroll = () => { scrollY = window.scrollY; schedule(); };
+    visual.addEventListener('pointermove', onPointerMove, { passive: true });
+    visual.addEventListener('pointerleave', onPointerLeave, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onPointerLeave();
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      visual.removeEventListener('pointermove', onPointerMove);
+      visual.removeEventListener('pointerleave', onPointerLeave);
+      window.removeEventListener('scroll', onScroll);
     };
   }, []);
   const walletState = getLandingWalletState(mode, { connecting: wallet.connecting, accountId: wallet.accountId, initError: wallet.initError, fixturePreview, configError });
@@ -49,7 +84,7 @@ export function LandingClient({ mode, configError }: { mode: LandingMode; config
           <p id="wallet-state" className="wallet-state" role="status">{walletState.message}</p>
           {mode === 'TESTNET' && wallet.accountId ? <button className="wallet-signout" type="button" onClick={() => void wallet.signOut()}>Sign out</button> : null}
         </div>
-        <div className="hero-visual reveal reveal-two" aria-label="Illustrative tracked performance card"><div className="orb-aura" aria-hidden="true" /><div className="orb-core" aria-hidden="true"><span>K</span></div><svg className="equity-ribbon" viewBox="0 0 720 360" role="img" aria-label="Illustrative equity ribbon rising over a tracked window"><defs><linearGradient id="ribbon-fill" x1="0" x2="1"><stop offset="0" stopColor="#4a7dff" stopOpacity="0" /><stop offset=".5" stopColor="#4a7dff" stopOpacity=".28" /><stop offset="1" stopColor="#9cb7ff" stopOpacity=".08" /></linearGradient></defs><path d="M20 286 C130 258 130 220 220 240 S320 268 390 184 S500 108 700 54 L700 360 L20 360Z" fill="url(#ribbon-fill)" /><path d="M20 286 C130 258 130 220 220 240 S320 268 390 184 S500 108 700 54" fill="none" stroke="#8aa9ff" strokeWidth="2.5" strokeLinecap="round" /><path d="M20 304 C120 280 160 266 232 278 S330 290 404 222 S520 148 700 102" fill="none" stroke="#fff" strokeOpacity=".18" strokeWidth="1" strokeDasharray="5 9" /></svg><article className="tracked-card"><div className="tracked-card-head"><div><p className="eyebrow">Illustrative sample</p><h2>Tracked performance</h2></div><span className="card-menu" aria-hidden="true">•••</span></div><div className="tracked-main"><div><span className="tracked-value">+18.42%</span><span className="tracked-period">30-day TWR · complete window</span></div><span className="tracked-up">↗</span></div><div className="mini-chart" aria-hidden="true"><span className="mini-line" /></div><dl className="tracked-stats"><div><dt>Coverage</dt><dd>99.8%</dd></div><div><dt>Settled swaps</dt><dd>142</dd></div><div><dt>Max drawdown</dt><dd className="pnl-down">−4.10%</dd></div></dl><p className="card-foot">Computed by Keyfolio from consented account observations · 07 Nov 2026 UTC</p></article><span className="visual-label label-top">SOURCE HEALTH <b>●</b></span><span className="visual-label label-bottom">PERIOD LOCKED · 30D</span></div>
+        <div ref={heroVisualRef} className="hero-visual reveal reveal-two" aria-label="Illustrative tracked performance card over generated Keyfolio visual"><div className="hero-art-frame"><img className="hero-art" src="/hero-keyfolio.png" alt="Illustrative Keyfolio key, trader profiles, and tracked market paths" width="1672" height="941" fetchPriority="high" /><span className="hero-art-sheen" aria-hidden="true" /></div><div className="orb-aura" aria-hidden="true" /><svg className="equity-ribbon" viewBox="0 0 720 360" role="img" aria-label="Illustrative equity ribbon rising over a tracked window"><defs><linearGradient id="ribbon-fill" x1="0" x2="1"><stop offset="0" stopColor="#4a7dff" stopOpacity="0" /><stop offset=".5" stopColor="#4a7dff" stopOpacity=".28" /><stop offset="1" stopColor="#9cb7ff" stopOpacity=".08" /></linearGradient></defs><path d="M20 286 C130 258 130 220 220 240 S320 268 390 184 S500 108 700 54 L700 360 L20 360Z" fill="url(#ribbon-fill)" /><path d="M20 286 C130 258 130 220 220 240 S320 268 390 184 S500 108 700 54" fill="none" stroke="#8aa9ff" strokeWidth="2.5" strokeLinecap="round" /><path d="M20 304 C120 280 160 266 232 278 S330 290 404 222 S520 148 700 102" fill="none" stroke="#fff" strokeOpacity=".18" strokeWidth="1" strokeDasharray="5 9" /></svg><article className="tracked-card"><div className="tracked-card-head"><div><p className="eyebrow">Illustrative sample</p><h2>Tracked performance</h2></div><span className="card-menu" aria-hidden="true">•••</span></div><div className="tracked-main"><div><span className="tracked-value">+18.42%</span><span className="tracked-period">30-day TWR · complete window</span></div><span className="tracked-up">↗</span></div><div className="mini-chart" aria-hidden="true"><span className="mini-line" /></div><dl className="tracked-stats"><div><dt>Coverage</dt><dd>99.8%</dd></div><div><dt>Settled swaps</dt><dd>142</dd></div><div><dt>Max drawdown</dt><dd className="pnl-down">−4.10%</dd></div></dl><p className="card-foot">Computed by Keyfolio from consented account observations · 07 Nov 2026 UTC</p></article><span className="visual-label label-top">SOURCE HEALTH <b>●</b></span><span className="visual-label label-bottom">PERIOD LOCKED · 30D</span></div>
       </section>
       <section id="trust" className="landing-section intro-section reveal reveal-three" aria-labelledby="measure-title"><div className="section-heading"><p className="landing-kicker">01 · The record behind the number</p><h2 id="measure-title">Performance is only useful<br />when its context is visible.</h2></div><div className="measure-grid"><article><span className="measure-index">01</span><h3>Coverage</h3><p>See the tracked window, gaps, and whether a period is complete before comparing returns.</p></article><article><span className="measure-index">02</span><h3>Source health</h3><p>Separate readable, stale, disconnected, and consent-withdrawn states from trading inactivity.</p></article><article><span className="measure-index">03</span><h3>Tracked performance</h3><p>Compare period-labeled return, PnL, drawdown, and settled swaps computed from source data.</p></article></div></section>
       <section id="how-it-works" className="landing-section access-section reveal reveal-four" aria-labelledby="access-title"><div className="section-heading"><p className="landing-kicker">02 · A clearer path to access</p><h2 id="access-title">Permission follows<br />the decision.</h2></div><div className="access-flow"><div className="flow-step"><span>01</span><strong>Choose a trader</strong><p>Start with a strategy and identity you can inspect.</p></div><div className="flow-connector" aria-hidden="true">→</div><div className="flow-step"><span>02</span><strong>Compare coverage</strong><p>Read tracked windows, source health, and performance together.</p></div><div className="flow-connector" aria-hidden="true">→</div><div className="flow-step"><span>03</span><strong>Buy the transferable NFT key</strong><p>Your access right is recorded in a wallet-owned key.</p></div><div className="flow-connector" aria-hidden="true">→</div><div className="flow-step"><span>04</span><strong>Unlock private read / API</strong><p>Entitlement gates the detail and API scopes you can use.</p></div><div className="flow-connector" aria-hidden="true">→</div><div className="flow-step"><span>05</span><strong>Assisted copy, when eligible</strong><p>Only trusted source time, entitlement, and your signature allow it.</p></div></div></section>
