@@ -4,7 +4,7 @@ Updated:2026-11-09, Asia/Jakarta. Branch main, public https://github.com/EndPx/k
 
 ## Current assignment and authority
 
-Primary Codex coordinates/reviews/integrates. User authorized Orca Codex Terra executor in KF-D016; historical DeepSeek C00 remains accepted. One implementation writer, no simultaneous migration/lockfile writer. Current Terra task: hydrated read-only TESTNET browser smoke for checkout/keys/studio and bounded runtime blockers; ready receipt names gpt-6.1-terra. Await actual results. Worker owns web/verification scripts/tests and new KF08 evidence; coordinator owns status/decisions/acceptance. Exact task/dispatch/handle in ignored local runtime notes.
+Primary Codex coordinates/reviews/integrates. User authorized Orca Codex Terra executor in KF-D016; historical DeepSeek C00 remains accepted. One implementation writer, no simultaneous migration/lockfile writer. The hydrated read-only TESTNET browser smoke and visual patch are accepted PASS_LOCAL; no active worker is pending in this checkout. Worker owns bounded implementation diffs/evidence; coordinator owns status/decisions/acceptance. Exact task/dispatch/handle remains in ignored local runtime notes.
 
 No signing/connect-wallet action, faucet, account/key change, deployment, mainnet call or paid service authorized for this task. Existing baseline limits still apply. FigCraft-first design direction was approved by user before implementation. NEAR-first and testnet-first remain binding. Do not restart accepted tasks.
 
@@ -14,13 +14,13 @@ No signing/connect-wallet action, faucet, account/key change, deployment, mainne
 |---|---|---|
 | KF-00 | ACCEPTED PASS_LOCAL | Actual DeepSeek task/result/Codex review [C00](evidence/KF-00/codex-review.md); do not repeat |
 | KF-01 | BLOCKED_EXTERNAL | No authorized source account/session/history invitation or subscriber-use approval. [Official research](evidence/KF-01/access-research.md), [UNSENT draft](provider-access-request.md). No repeat unauthed probes |
-| KF-02 | PARTIAL | KF02a ACCEPTED source319a843,52 tests+CI. Full API/OpenAPI freeze and provider boundary still missing; old GATER assignment not active. Web/contract scaffolds now exist, full foundation acceptance not established |
+| KF-02 | PARTIAL | KF02a ACCEPTED source319a843,52 tests+CI. KF-02b API/OpenAPI/provider boundary PASS_LOCAL at current diff with 138 full workspace tests, but full foundation acceptance and API handlers remain incomplete |
 | KF-03 | PASS_LOCAL subsets, not accepted full task | Domain ledger8979923; persistence2810aa9 event/movement/cursor transaction and CAS tests. Local recovery/reconciliation/correction integration and live account reconciliation incomplete |
 | KF-04 | PASS_LOCAL domain, not full acceptance | Exact PnL/TWR/drawdown6bf9ef0. Historical price source G03, snapshots/public read model and pipeline not wired |
 | KF-05 | IN_PROGRESS | Host contract and deployed-WASM Sandbox results reported in KF05 evidence, including mock FT happy path. Full N01-N12 review/testing not accepted. Testnet deployment records conflict; see below. No purchase/payout testnet acceptance |
 | KF-06 | PASS_LOCAL domain, not full acceptance | Challenge/binding/nonce/credential/quota pure rules65d5ba7. Real signature/account-key verification, durable sessions/CSRF/hash/API integration missing |
 | KF-07 | NOT_RUN integration | Requires real auth plus authoritative owner/epoch/expiry/pending transfer/freshness checks, credential invalidation and private request tests |
-| KF-08 | PASS_LOCAL accepted source slice, browser validation running | User-approved FigCraft direction and web pages exist. Checkout preflight/recovery bd6c9b0 accepted only source/test scope; [acceptance](evidence/KF-08/checkout-preflight-acceptance.md). Browser hydration/signing/purchase remain unproven. Other screens not full U01-U06 acceptance |
+| KF-08 | PASS_LOCAL accepted slices, landing-first redesign queued | User-approved FigCraft dashboard and new landing direction exist. Checkout preflight/recovery bd6c9b0 and browser smoke are accepted only for source/read-only scope; [acceptance](evidence/KF-08/checkout-preflight-acceptance.md). Wallet signing/purchase/private entitlement remain unproven. Other screens not full U01-U06 acceptance |
 | KF-09 | NOT_RUN | Assisted-copy order/quote/source signing/status adapter not implemented; actual execution requires G01/G05 |
 | KF-10 | NOT_RUN | Full journey/recovery/backup/secret audit not accepted; no end-to-end claim |
 | KF-11 | NOT_RUN | Final reproducible release/evidence/demo/rollback package follows integration; maintain accurate partial README meanwhile |
@@ -56,3 +56,7 @@ Internal target2026-11-14 23:59 WIB. Schedule is at risk: full foundation/API/au
 Terra browser smoke accepted PASS_LOCAL read-only: real Chrome at1440/390 executed checkout/keys/studio, bounded RPC timeout error/retry, no mobile overflow, no signing. Evidence:[browser-smoke-acceptance](evidence/KF-08/browser-smoke-acceptance.md). Wallet signing/purchase/private entitlement remain NOT_RUN; FT/G02 and source/G01 remain blockers.
 
 Visual patch checkpoint (2026-11-09): PASS_LOCAL. Existing `assets/brand/keyfolio-symbol-v1.png` is copied byte-for-byte to `apps/web/public/brand/keyfolio-symbol-v1.png` and used by `SideNav` with fixed dimensions and decorative alt handling; the same master is exposed as `apps/web/src/app/icon.png` to remove the favicon 404. The missing `--ink38` token and TESTNET `dot-live` color are defined; one verbatim duplicate gate CSS block is removed. Responsive shell behavior and KF-D016 mode/honesty/account-following contracts are unchanged. Evidence: [visual-patch-2026-11-09](evidence/KF-08/visual-patch-2026-11-09.md). Validation: `pnpm --filter @keyfolio/web typecheck`, `pnpm --filter @keyfolio/web build` PASS_LOCAL.
+
+KF-02b checkpoint (2026-11-10): PASS_LOCAL implementation reviewed by Codex. Frozen 14-route section-11 browser contract, deterministic OpenAPI artifact, server-only provider adapter boundary, and FIXTURE-only synthetic adapter are present. TESTNET/LIVE adapters fail closed pending KF-01/G01. Validation: `pnpm check` **138/138 PASS**. Evidence: [kf02b-implementation-evidence](evidence/KF-02/kf02b-implementation-evidence.md).
+
+KF-D017 UI checkpoint (2026-11-10): FigCraft landing contract added as `Screen / 00 Landing desktop 1440`; landing-first motion and rounded dashboard surfaces are now binding. Production landing implementation and wallet CTA wiring are the next frontend slice; no signing or deployment is implied.

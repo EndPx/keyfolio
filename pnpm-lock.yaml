@@ -110,6 +110,12 @@ importers:
 
   packages/domain: {}
 
+  packages/provider-adapter:
+    dependencies:
+      '@keyfolio/domain':
+        specifier: workspace:*
+        version: link:../domain
+
 packages:
 
   '@electric-sql/pglite@0.5.15':
