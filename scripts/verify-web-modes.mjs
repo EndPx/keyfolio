@@ -1,9 +1,16 @@
-// Verification for review KF-08b.1 finding 2: the three demo routes must
-// serve FIXTURE data ONLY in FIXTURE mode, and must serve ZERO fixture
-// numbers/sellers/orders in TESTNET (valid config), LIVE (valid config) and
-// invalid-config modes. Starts its own `next start` instances against the
-// built app (run `pnpm --filter @keyfolio/web build` first).
-// Usage: node scripts/verify-web-modes.mjs
+// Verification for review KF-08b: the demo routes must serve FIXTURE data
+// ONLY in FIXTURE mode, and the TESTNET-only client components (checkout,
+// keys, studio, activity) must be mounted ONLY in TESTNET mode — LIVE and
+// invalid configs fail closed.
+//
+// LIMITATION (documented, not papered over): this script greps the SERVER-
+// RENDERED HTML. It proves SERVER gating and which client components are
+// mounted, but it CANNOT observe hydrated client behavior (post-load contract
+// queries, wallet signing, verification). Hydrated TESTNET behavior is covered
+// separately by the apps/web unit tests and, where no browser is available,
+// is recorded as a NOT_RUN blocker rather than claimed from this HTML grep.
+//
+// Usage: node scripts/verify-web-modes.mjs  (run `pnpm --filter @keyfolio/web build` first)
 // No signing, no transactions — synthetic config only.
 
 import { spawn } from 'node:child_process';
@@ -19,14 +26,26 @@ const BASE_PORT = 3311;
 
 const ROUTES = ['/', '/traders/carla', '/checkout/carla', '/keys', '/studio', '/private', '/api-access', '/activity'];
 
+// Routes that actually serve FIXTURE seller/plan data in FIXTURE mode. The
+// wallet/private/access screens render explicit demo/not-connected panels in
+// every mode, so they are not expected to contain fixture markers.
+const FIXTURE_DATA_ROUTES = ['/', '/traders/carla', '/checkout/carla'];
+
 // Fixture markers that must NEVER appear outside FIXTURE mode.
 const FIXTURE_MARKERS = ['Carla', 'carla.near', '+214.50', '25.000000', '8.24', 'DeltaOne', 'Esteban'];
+
+// Client-component mount evidence present in SERVER HTML only because the
+// component is actually mounted. (Hydrated behavior is separate.)
+const CHECKOUT_MOUNT = 'Loading contract state from NEAR testnet';
+const WALLET_MOUNT = 'Connecting wallet service';
+// LIVE fail-closed wording used by the testnet-only pages.
+const TESTNET_ONLY = 'wired for testnet only';
 
 const MODES = [
   {
     name: 'FIXTURE',
     env: { KEYFOLIO_MODE: 'FIXTURE' },
-    expect: 'fixture', // fixture markers PRESENT on all routes
+    expect: 'fixture',
   },
   {
     name: 'TESTNET (valid synthetic config)',
@@ -37,7 +56,7 @@ const MODES = [
       DATABASE_URL: 'postgres://synthetic:synthetic@127.0.0.1:1/synthetic',
       PROVIDER_BASE_URL: 'https://provider.synthetic.example',
     },
-    expect: 'gated',
+    expect: 'testnet',
   },
   {
     name: 'LIVE (valid synthetic config)',
@@ -47,10 +66,10 @@ const MODES = [
       NEAR_RPC_URL: 'https://rpc.mainnet.near.org',
       DATABASE_URL: 'postgres://synthetic:synthetic@127.0.0.1:1/synthetic',
       PROVIDER_BASE_URL: 'https://provider.synthetic.example',
-      ACCESS_CONTRACT_ID: 'access.synthetic.testnet',
-      SUBSCRIPTION_FT_CONTRACT_ID: 'ft.synthetic.testnet',
+      ACCESS_CONTRACT_ID: 'access.mainnet',
+      SUBSCRIPTION_FT_CONTRACT_ID: 'ft.mainnet',
     },
-    expect: 'gated',
+    expect: 'live',
   },
   {
     name: 'invalid config',
@@ -59,15 +78,32 @@ const MODES = [
   },
 ];
 
+// Per-route, per-mode SERVER gating assertions.
+function mountChecks(mode) {
+  const expect = mode.expect;
+  const checks = {}; // route -> { contains: [], excludes: [] }
+  if (expect === 'testnet') {
+    checks['/checkout/carla'] = { contains: [CHECKOUT_MOUNT], excludes: [] };
+    for (const r of ['/keys', '/studio', '/activity']) {
+      checks[r] = { contains: [WALLET_MOUNT], excludes: [] };
+    }
+  } else if (expect === 'live') {
+    checks['/checkout/carla'] = { contains: [TESTNET_ONLY], excludes: [CHECKOUT_MOUNT] };
+    for (const r of ['/keys', '/studio', '/activity']) {
+      checks[r] = { contains: [TESTNET_ONLY], excludes: [WALLET_MOUNT] };
+    }
+  }
+  return checks;
+}
+
 let failures = 0;
 
 function startServer(port, env) {
-  const child = spawn(process.execPath, [NEXT_BIN, 'start', '-p', String(port)], {
+  return spawn(process.execPath, [NEXT_BIN, 'start', '-p', String(port)], {
     cwd: webDir,
     env: { ...process.env, ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  return child;
 }
 
 async function waitReady(port, timeoutMs = 30_000) {
@@ -86,14 +122,14 @@ async function waitReady(port, timeoutMs = 30_000) {
 
 async function getBody(path, port) {
   const res = await fetch(`http://127.0.0.1:${port}${path}`);
-  const text = await res.text();
-  return { status: res.status, text };
+  return { status: res.status, text: await res.text() };
 }
 
 async function main() {
   for (const [modeIndex, mode] of MODES.entries()) {
     const port = BASE_PORT + modeIndex;
     const child = startServer(port, mode.env);
+    const checks = mountChecks(mode);
     try {
       if (!(await waitReady(port))) {
         throw new Error(`server did not become ready for ${mode.name}`);
@@ -103,28 +139,40 @@ async function main() {
         if (status !== 200) {
           throw new Error(`[${mode.name}] ${route} returned HTTP ${status}`);
         }
+
+        // 1. Fixture confinement.
         const leaked = FIXTURE_MARKERS.filter((m) => text.includes(m));
         if (mode.expect === 'fixture') {
-          if (leaked.length === 0) {
+          if (FIXTURE_DATA_ROUTES.includes(route) && leaked.length === 0) {
             throw new Error(`[${mode.name}] ${route}: expected fixture markers, found none`);
           }
         } else if (leaked.length > 0) {
           throw new Error(`[${mode.name}] ${route}: FIXTURE LEAK detected: ${leaked.join(', ')}`);
         }
-        const expects = {
-          fixture: () => null, // presence already asserted via markers
-          gated: () => {
-            if (!/mode is active|not connected|data source/i.test(text)) {
-              throw new Error(`[${mode.name}] ${route}: missing the explicit not-connected explanation`);
+
+        // 2. Mode/target mount assertions.
+        const c = checks[route];
+        if (c) {
+          for (const marker of c.contains) {
+            if (!text.includes(marker)) {
+              throw new Error(`[${mode.name}] ${route}: missing expected marker "${marker}"`);
             }
-          },
-          'config-error': () => {
-            if (!/unknown KEYFOLIO_MODE|Configuration error/i.test(text)) {
-              throw new Error(`[${mode.name}] ${route}: missing the config error explanation`);
+          }
+          for (const marker of c.excludes) {
+            if (text.includes(marker)) {
+              throw new Error(`[${mode.name}] ${route}: should NOT contain "${marker}" (testnet client leaked into ${mode.expect})`);
             }
-          },
-        };
-        if (mode.expect !== 'fixture') expects[mode.expect]();
+          }
+        } else if (mode.expect === 'config-error') {
+          if (!/Configuration error|unknown KEYFOLIO_MODE/i.test(text)) {
+            throw new Error(`[${mode.name}] ${route}: missing the config error explanation`);
+          }
+        } else if (mode.expect !== 'fixture') {
+          // Non-mount-sensitive routes must render an explicit not-connected explanation.
+          if (!/mode is active|Not connected|not connected|data source/i.test(text)) {
+            throw new Error(`[${mode.name}] ${route}: missing the explicit not-connected explanation`);
+          }
+        }
         console.log(`  ok [${mode.name}] ${route} (HTTP ${status}, fixture leaks: ${leaked.length})`);
       }
     } catch (err) {
@@ -140,7 +188,7 @@ async function main() {
     console.error(`VERIFY-WEB-MODES FAILED (${failures} mode(s))`);
     process.exit(1);
   }
-  console.log('VERIFY-WEB-MODES PASSED: fixture data confined to FIXTURE mode across all routes');
+  console.log('VERIFY-WEB-MODES PASSED: fixture data confined to FIXTURE; testnet client components mounted only in TESTNET (server gating — hydrated behavior is covered by unit tests)');
 }
 
 await main();

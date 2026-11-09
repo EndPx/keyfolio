@@ -1,34 +1,38 @@
 'use client';
 
 /**
- * TESTNET checkout (KF-08b.2): real contract queries + real wallet signing.
- * Config comes from the server page via props (mode discipline - this
- * component is mounted only in TESTNET mode). Prerequisites are checked
- * on-chain and shown as explicit gates; the buy action only enables when
- * every one of them exists. No simulation, no fixture numbers.
+ * TESTNET checkout (KF-08b): real contract preflight + real wallet signing
+ * through a shared action builder. Config comes from the server page. Every
+ * on-chain prerequisite is shown as an explicit gate; purchase only enables
+ * when all gates pass AND the preflight is fresh (<=30s). A wallet success is
+ * NOT a license — the flow only shows `confirmed` after the contract receipt
+ * + owner binding is verified. No simulation, no fixture numbers, no
+ * hardcoded decimals fallback.
  */
-
-import { transactions } from 'near-api-js';
-const GAS_FT_TRANSFER_CALL = '250000000000000';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useWallet } from '../../../wallet/WalletContext';
+import { createTestnetClient, formatAtomic, formatYoctoNear, type TestnetClient } from '../../../testnet';
+import { canPurchase, isPreflightStale, runCheckoutPreflight, type PreflightReady } from '../../../preflight';
+import { buildPurchaseActions, purchaseMessage } from '../../../nearActions';
 import {
-  createTestnetClient,
-  type TestnetClient,
-  type TraderJson,
-} from '../../../testnet';
-
-/** Exact decimal display from the atomic string via bigint shift - no float. */
-function formatAtomic(atomic: string, decimals: number): string {
-  const digits = atomic;
-  const d = BigInt(decimals);
-  const value = BigInt(digits);
-  const base = 10n ** d;
-  const whole = value / base;
-  const frac = (value % base).toString().padStart(decimals, '0').replace(/0+$/, '');
-  return `${whole.toString()}${frac ? `.${frac}` : ''}`;
-}
+  applyVerification,
+  applyWalletError,
+  applyWalletOutcome,
+  beginPurchase,
+  canOfferPurchase,
+  classifyWalletResult,
+  deriveTokenId,
+  initialPurchaseState,
+  localStorageAdapter,
+  persistPurchaseRecord,
+  purchaseStorageKey,
+  recordFromState,
+  resolveOrCreatePayload,
+  restorePurchase,
+  stateFromRecord,
+  type PurchaseState,
+} from '../../../purchaseFlow';
 
 function formatTerm(termMs: number): string {
   const day = 86_400_000;
@@ -55,183 +59,253 @@ export function CheckoutTestnet({
     [rpcUrl, accessContract],
   );
   const { accountId, connecting, initError, signIn, selector } = useWallet();
-  const [gate, setGate] = useState<
+
+  const [preflight, setPreflight] = useState<
     | { phase: 'loading' }
-    | { phase: 'error'; message: string }
-    | {
-        phase: 'ready';
-        info: { version: string; owner_id: string; monitor_id: string; ft_id: string };
-        plan: { price: string; term_ms: number; active: boolean };
-        trader: TraderJson | null;
-        ftDeployed: boolean;
-        ftDecimals: number | null;
-      }
+    | { phase: 'error'; fetchedAtMs: number; message: string }
+    | PreflightReady
   >({ phase: 'loading' });
-  const [buying, setBuying] = useState(false);
-  const [outcome, setOutcome] = useState<
-    | { kind: 'pending' }
-    | { kind: 'success'; txHash: string }
-    | { kind: 'failed'; message: string }
-    | null
-  >(null);
+  const [stale, setStale] = useState(false);
+  const [purchase, setPurchase] = useState<PurchaseState>(initialPurchaseState);
+  // Tracks which accountId the restored purchase corresponds to. Until the
+  // async wallet account resolves AND the restore effect runs, `restoreComplete`
+  // is false and the buy action stays disabled (no brief enable before a
+  // pending/failed record is loaded).
+  const [restoredFor, setRestoredFor] = useState<string | null>(null);
+
+  // Restore the persisted purchase whenever the wallet account or binding
+  // changes (the seam for reload/redirect recovery after async account resolve).
+  useEffect(() => {
+    const result = accountId
+      ? restorePurchase(localStorageAdapter, { network: 'testnet', accessContract, traderId, buyer: accountId })
+      : initialPurchaseState();
+    setPurchase(result);
+    setRestoredFor(accountId);
+  }, [accountId, accessContract, traderId]);
+
+  const restoreComplete = accountId === null || restoredFor === accountId;
 
   const load = useCallback(async () => {
-    setGate({ phase: 'loading' });
+    setPreflight({ phase: 'loading' });
     try {
-      const info = await client.viewContractInfo();
-      const [plan, trader] = await Promise.all([
-        client.viewCurrentPlan(traderId),
-        client.viewTrader(traderId),
-      ]);
-      const active = !!plan && plan.active;
-      const ftDeployed = active ? await client.accountExists(info.ft_id) : false;
-      const ftMeta = ftDeployed ? await client.viewFtMetadata(info.ft_id) : null;
-      setGate({
-        phase: 'ready',
-        info,
-        plan: active ? plan : { price: '0', term_ms: 0, active: false },
-        trader,
-        ftDeployed,
-        ftDecimals: ftMeta?.decimals ?? null,
-      });
+      const result = await runCheckoutPreflight({ rpcUrl, accessContract }, traderId, accountId ?? null);
+      setPreflight(result);
     } catch (err) {
-      setGate({ phase: 'error', message: String((err as Error).message ?? err) });
+      setPreflight({ phase: 'error', fetchedAtMs: Date.now(), message: String((err as Error).message ?? err).slice(0, 240) });
     }
-  }, [client, traderId]);
+  }, [rpcUrl, accessContract, traderId, accountId]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
+  // Re-evaluate freshness on an interval so stale gates disable actions.
+  useEffect(() => {
+    if (preflight.phase !== 'ready') return;
+    setStale(isPreflightStale(preflight));
+    const timer = setInterval(() => setStale(isPreflightStale(preflight)), 5000);
+    return () => clearInterval(timer);
+  }, [preflight]);
+
+  const persist = useCallback((state: PurchaseState) => {
+    if (!state.payload) return;
+    const rec = recordFromState(state, Date.now());
+    if (rec) {
+      persistPurchaseRecord(
+        localStorageAdapter,
+        purchaseStorageKey(state.payload.network, state.payload.accessContract, state.payload.traderId, state.payload.buyer),
+        rec,
+      );
+    }
+  }, []);
+
+  const verify = useCallback(
+    async (state: PurchaseState): Promise<PurchaseState> => {
+      if (!state.payload) return state;
+      const p = state.payload;
+      try {
+        const hasPurchase = await client.viewHasPurchase(p.traderId, p.buyer, p.purchaseId);
+        let owner: string | null = null;
+        if (hasPurchase) {
+          const license = await client.viewLicense(deriveTokenId(p));
+          owner = license?.owner_id ?? null;
+        }
+        return applyVerification(state, hasPurchase, owner);
+      } catch {
+        // Verification unreadable: keep pending, do NOT mark failed.
+        return { ...state, phase: 'pending-unknown', reason: 'Verification unreadable — recovery pending.' };
+      }
+    },
+    [client],
+  );
+
   async function buy() {
-    const g = gate.phase === 'ready' ? gate : null;
-    if (!g || !accountId || !selector) return;
+    if (preflight.phase !== 'ready') return;
+    if (!accountId || !selector || !restoreComplete) return;
+    if (stale || !canPurchase(preflight, Date.now())) {
+      setStale(true);
+      await load();
+      return;
+    }
+    if (!canOfferPurchase(purchase)) return; // unresolved or confirmed: no new intent
+
+    const g = preflight;
     const plan = g.plan;
     const trader = g.trader;
-    if (!trader) return;
-    setBuying(true);
-    setOutcome({ kind: 'pending' });
+    if (!plan || !trader) return;
+    if (g.ftDecimals === null) return; // metadata gate already blocks; no lifecycle transition
+
+    const resolution = resolveOrCreatePayload(
+      {
+        network: 'testnet',
+        accessContract,
+        ftContract: g.info.ft_id,
+        traderId,
+        planVersion: trader.current_plan_version,
+        priceAtomic: plan.price,
+        buyer: accountId,
+      },
+      localStorageAdapter,
+    );
+    if (resolution.kind === 'blocked') {
+      setPurchase({ ...stateFromRecord(resolution.record), reason: resolution.reason });
+      return;
+    }
+    const payload = resolution.payload;
+
+    let state = beginPurchase(purchase, payload);
+    setPurchase(state);
+    persist(state);
     try {
       const wallet = await selector.wallet();
-      const msg = JSON.stringify({
-        action: 'purchase',
-        trader_id: traderId,
-        plan_version: trader.current_plan_version,
-        purchase_id: `web-${Date.now()}`,
-      });
+      const msg = purchaseMessage({ traderId, planVersion: trader.current_plan_version, purchaseId: payload.purchaseId });
       const result = await wallet.signAndSendTransaction({
         signerId: accountId,
         receiverId: g.info.ft_id,
-        actions: [
-          // Single deduped near-api-js instance (verified in pnpm-lock) makes
-          // this cast type-only; see evidence note on finding 8.
-          transactions.functionCall(
-            'ft_transfer_call',
-            {
-              receiver_id: accessContract,
-              amount: plan.price,
-              memo: 'keyfolio access purchase',
-              msg,
-            },
-            BigInt(GAS_FT_TRANSFER_CALL),
-            BigInt(1),
-          ) as never,
-        ],
+        actions: buildPurchaseActions({ accessContract, amountAtomic: plan.price, msg }),
       });
-      const txHash =
-        (result as { transaction_outcome?: { id?: string } }).transaction_outcome?.id ?? 'unknown';
-      // The tx hash is the outcome; license verification happens under My
-      // Keys (finality lag must never be labeled a failure).
-      setOutcome({ kind: 'success', txHash });
+      state = applyWalletOutcome(state, classifyWalletResult(result));
+      setPurchase(state);
+      persist(state);
+      if (state.phase === 'submitted' || state.phase === 'pending-unknown') {
+        const verified = await verify(state);
+        setPurchase(verified);
+        persist(verified);
+      }
     } catch (err) {
-      setOutcome({ kind: 'failed', message: String((err as Error).message ?? err).slice(0, 300) });
-    } finally {
-      setBuying(false);
+      state = applyWalletError(state, err);
+      setPurchase(state);
+      persist(state);
     }
   }
 
-  if (gate.phase === 'loading') {
+  async function recover() {
+    if (!purchase.payload) return;
+    const verified = await verify(purchase);
+    setPurchase(verified);
+    persist(verified);
+  }
+
+  if (preflight.phase === 'loading') {
     return <p className="meta-line" role="status">Loading contract state from NEAR testnet...</p>;
   }
-  if (gate.phase === 'error') {
+  if (preflight.phase === 'error') {
     return (
       <div className="panel note-error" role="status">
-        <p className="terms-text">Contract query failed: {gate.message}</p>
+        <p className="terms-text">Contract query failed: {preflight.message}</p>
         <button type="button" className="btn btn-secondary" onClick={() => void load()}>Retry</button>
       </div>
     );
   }
 
-  const g = gate;
-  const salesActive = g.trader?.salesEnabled ?? false;
-  const terminated = g.trader?.terminated ?? false;
-  const planVersion = g.trader?.current_plan_version ?? null;
-
-  const gates = [
-    { ok: !!g.plan && g.plan.active, label: 'Plan published and active' },
-    { ok: salesActive && !terminated, label: 'Seller sales enabled (not terminated)' },
-    { ok: g.ftDeployed, label: `Subscription FT deployed at ${g.info.ft_id}` },
-    { ok: !!accountId, label: accountId ? `Wallet connected: ${accountId}` : 'Wallet connected' },
-  ];
-  const allOk = gates.every((x) => x.ok);
-  const decimals = g.ftDecimals ?? 6; // KF-TEST mock FT has 6; shown from ft_metadata when live
-  const priceDisplay = `${formatAtomic(g.plan.price, decimals)} KF-TEST`;
+  const g = preflight;
+  const allOk = canPurchase(g, Date.now());
+  const decimals = g.ftDecimals;
+  const symbol = g.ftSymbol ?? 'FT';
+  const priceDisplay =
+    decimals !== null && g.plan ? `${formatAtomic(g.plan.price, decimals)} ${symbol}` : '(price unavailable — decimals unknown)';
+  const storageDisplay =
+    g.storageMinimum !== null
+      ? `${formatYoctoNear(g.storageMinimum)} NEAR (native, separate from price)`
+      : 'storage minimum unavailable';
+  const blockLine = g.block
+    ? `Block #${g.block.height} · fetched ${new Date(g.fetchedAtMs).toISOString().replace('T', ' ').slice(0, 19)} UTC`
+    : 'Block context unavailable';
 
   return (
     <div>
+      <p className="meta-line">
+        Single demo trader: <strong>{traderId}</strong> · access contract {accessContract} · FT {g.info.ft_id}
+      </p>
       <ul className="gates" aria-label="Purchase prerequisites">
-        {gates.map((x) => (
-          <li key={x.label} className={x.ok ? 'gate ok' : 'gate blocked'}>
+        {g.gates.map((x) => (
+          <li key={x.id} className={x.ok ? 'gate ok' : 'gate blocked'}>
             <span aria-hidden="true">{x.ok ? '✓' : '✗'}</span> {x.label}
+            {!x.ok && x.detail ? <span className="meta-line"> — {x.detail}</span> : null}
           </li>
         ))}
-        {planVersion !== null && (
-          <li className="gate ok">
-            <span aria-hidden="true">{'•'}</span> Plan version bound: v{planVersion}
-          </li>
-        )}
       </ul>
       <p className="meta-line">
-        Live plan from contract: {g.plan.price} atomic · {formatTerm(g.plan.term_ms)} term
-        {g.ftDecimals !== null ? ` · ${g.ftDecimals} decimals` : ' · decimals from FT metadata when deployed'}
+        Live plan from contract: {g.plan ? `${g.plan.price} atomic · ${formatTerm(g.plan.term_ms)} term` : 'no plan'}
+        {decimals !== null ? ` · ${decimals} decimals (from ft_metadata)` : ' · decimals unavailable — ft_metadata did not resolve'}
       </p>
-      {outcome?.kind === 'pending' && (
+      <p className="meta-line">Storage: {storageDisplay}</p>
+      <p className="meta-line">{blockLine} · preflight {allOk ? 'fresh' : stale ? 'STALE (>30s)' : 'blocked'}</p>
+      {g.warnings.length > 0 && (
+        <p className="meta-line" role="status">Warnings: {g.warnings.join('; ')}</p>
+      )}
+
+      {purchase.phase === 'awaiting-wallet' && (
+        <div className="state-chip chip-pending" role="status">Wallet prompt open — confirm or cancel in your wallet.</div>
+      )}
+      {purchase.phase === 'submitted' && (
         <div className="state-chip chip-pending" role="status">
-          Purchase submitted - confirm in your wallet and wait for finality...
+          Submitted{purchase.txHash ? ` (${purchase.txHash})` : ''} — verifying license on chain…
         </div>
       )}
-      {outcome?.kind === 'success' && (
+      {purchase.phase === 'pending-unknown' && (
+        <div className="state-chip chip-pending" role="status">
+          Recovery pending — do not resubmit.{' '}
+          <button type="button" className="btn btn-secondary" onClick={() => void recover()}>Verify license now</button>
+        </div>
+      )}
+      {purchase.phase === 'confirmed' && (
         <div className="state-chip chip-success" role="status">
-          Purchase transaction completed: {outcome.txHash} - verify the license under My Keys.
+          License confirmed for {purchase.payload?.buyer} (owner verified on chain).
         </div>
       )}
-      {outcome?.kind === 'failed' && (
+      {purchase.phase === 'failed' && (
         <div className="state-chip chip-failed" role="status">
-          Purchase failed: {outcome.message}
+          {purchase.rejectedByWallet ? 'Wallet declined or errored: ' : 'Purchase failed: '}
+          {purchase.reason}
         </div>
       )}
-      {!allOk && (
-        <span className="btn btn-disabled" role="status">
-          {g.ftDeployed
-            ? 'Complete the checks above to enable purchase'
-            : 'Purchase disabled - subscription FT not deployed yet (G02)'}
-        </span>
-      )}
-      {allOk && (
-        <button type="button" className="btn btn-primary" disabled={buying} onClick={() => void buy()}>
-          {buying ? 'Submitting...' : `Buy access · ${priceDisplay} / ${formatTerm(g.plan.term_ms)}`}
-        </button>
+
+      {accountId ? (
+        !restoreComplete ? (
+          <span className="btn btn-disabled" role="status">Restoring previous purchase intent…</span>
+        ) : purchase.phase === 'confirmed' ? (
+          <span className="btn btn-disabled" role="status">Already confirmed — this flow does not re-purchase the same license</span>
+        ) : canOfferPurchase(purchase) ? (
+          allOk ? (
+            <button type="button" className="btn btn-primary" onClick={() => void buy()}>
+              Buy access · {priceDisplay} / {formatTerm(g.plan?.term_ms ?? 0)}
+            </button>
+          ) : (
+            <span className="btn btn-disabled" role="status">Complete the checks above to enable purchase</span>
+          )
+        ) : (
+          <span className="btn btn-disabled" role="status">Resubmission blocked until the previous attempt is recovered</span>
+        )
+      ) : (
+        <button type="button" className="btn btn-secondary" onClick={signIn}>Connect wallet</button>
       )}
       <p className="meta-line">
-        Demo note: single-trader checkout (trader {traderId}) - multi-trader routing is a later
-        milestone.
+        Demo note: single-trader checkout (trader {traderId}) — multi-trader routing is a later milestone.
+        A verified license grants read access for its active term only; a public owner read is not private account ownership.
       </p>
-      {initError && (
-        <p className="meta-line" role="status">Wallet init error: {initError}</p>
-      )}
-      {connecting && !initError && (
-        <p className="meta-line" role="status">Connecting wallet service...</p>
-      )}
+      {initError && <p className="meta-line" role="status">Wallet init error: {initError}</p>}
+      {connecting && !initError && <p className="meta-line" role="status">Connecting wallet service...</p>}
     </div>
   );
 }

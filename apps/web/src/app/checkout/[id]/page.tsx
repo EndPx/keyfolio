@@ -1,13 +1,15 @@
 import { PLAN, getSeller } from '../../../fixture';
 import { getWebConfig } from '../../../config';
+import { checkoutMount } from '../../../checkoutMount';
 import { CheckoutActions } from './CheckoutActions';
 import { CheckoutTestnet } from './CheckoutTestnet';
 
 /**
- * FAIL-CLOSED ORDER (review KF-08b.1): the mode/config gate runs BEFORE any
- * fixture data is read or rendered. TESTNET/LIVE (and invalid configs) never
- * see the fixture seller, plan or order rows — only an explicit explanation
- * of what is missing.
+ * FAIL-CLOSED ORDER (KF-08b): the mode/config gate runs BEFORE any fixture
+ * data is read. FIXTURE serves the clearly labeled demo. TESTNET mounts the
+ * real read-only/wallet checkout. LIVE (and any invalid config) renders an
+ * explicit explanation and mounts NOTHING testnet — no queries, no signing,
+ * no fixture numbers.
  */
 export default async function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -27,30 +29,24 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  if (cfg.mode !== 'FIXTURE') {
-    return (
-      <section aria-labelledby="page-title">
-        <h1 id="page-title" className="page-title">Checkout</h1>
-        <p className="sample-note">{cfg.mode} mode · live contract data · no fixture numbers on this page</p>
-        <CheckoutTestnet
-          rpcUrl='https://rpc.testnet.near.org'
-          accessContract={process.env.NEXT_PUBLIC_ACCESS_CONTRACT_ID ?? 'keyfolio-access.testnet'}
-          traderId={process.env.NEXT_PUBLIC_DEMO_TRADER_ID ?? 'keyfolio-ops.testnet'}
-        />
-      </section>
-    );
+  const mount = checkoutMount(cfg.mode);
+
+  if (mount === 'none') {
+    return <CheckoutUnavailable title="Checkout unavailable" reason={`${cfg.mode} mode: checkout is wired for testnet only and no testnet component, query, or signing is mounted in this mode.`} />;
   }
 
+  if (cfg.mode === 'TESTNET') {
+    return <TestnetCheckout cfg={{ ok: true, mode: 'TESTNET', config: cfg.config }} />;
+  }
+
+  // FIXTURE
   const seller = getSeller(id);
   if (!seller || seller.id !== 'carla' || !seller.salesActive) {
     return (
-      <section aria-labelledby="page-title">
-        <h1 id="page-title" className="page-title">Checkout unavailable</h1>
-        <p className="meta-line">
-          This seller is not accepting purchases in the demo, or the profile does not exist.{' '}
-          <a href="/">Back to Marketplace</a>
-        </p>
-      </section>
+      <CheckoutUnavailable
+        title="Checkout unavailable"
+        reason="This seller is not accepting purchases in the demo, or the profile does not exist."
+      />
     );
   }
 
@@ -78,6 +74,31 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
           <CheckoutActions mode={cfg.mode} />
         </div>
       </div>
+    </section>
+  );
+}
+
+function CheckoutUnavailable({ title, reason }: { title: string; reason: string }) {
+  return (
+    <section aria-labelledby="page-title">
+      <h1 id="page-title" className="page-title">{title}</h1>
+      <p className="meta-line">
+        {reason}{' '}
+        <a href="/">Back to Marketplace</a>
+      </p>
+    </section>
+  );
+}
+
+function TestnetCheckout({ cfg }: { cfg: { ok: true; mode: 'TESTNET'; config: { network: string | null } } }) {
+  const accessContract = process.env.NEXT_PUBLIC_ACCESS_CONTRACT_ID ?? 'keyfolio-access.testnet';
+  const rpcUrl = process.env.NEXT_PUBLIC_NEAR_RPC_URL ?? 'https://rpc.testnet.near.org';
+  const traderId = process.env.NEXT_PUBLIC_DEMO_TRADER_ID ?? 'keyfolio-ops.testnet';
+  return (
+    <section aria-labelledby="page-title">
+      <h1 id="page-title" className="page-title">Checkout</h1>
+      <p className="sample-note">TESTNET · near {cfg.config.network} · read-only preflight + real wallet signing · no fixture numbers</p>
+      <CheckoutTestnet rpcUrl={rpcUrl} accessContract={accessContract} traderId={traderId} />
     </section>
   );
 }

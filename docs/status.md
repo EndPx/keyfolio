@@ -49,3 +49,8 @@ Required future configuration names (not values): DATABASE_URL, KEYFOLIO_MODE, N
 3. KF-08b production screens only after the user reviews/approves the mockup renders.
 4. KF-01 next action unchanged: user reviews/sends the provider inquiry or grants explicit authorization.
 5. KF-02b: untouched until GATER access is restored; reconcile with the user before resuming that dispatch.
+
+
+## Latest checkout preflight review — 2026-11-09
+
+Checkout preflight/recovery source slice ACCEPTED PASS_LOCAL by Codex; see [acceptance](evidence/KF-08/checkout-preflight-acceptance.md). Independent full132-test prior revision and final focused17-test classifier checks pass; worker reports final133 suite/build/typecheck/mode matrix pass. This supersedes older blanket wallet/UI NOT_RUN claims only for implemented source logic. Hydrated browser, wallet signing, purchase and private entitlement remain NOT_RUN; full KF08/G04/KF07 are not accepted. Source committed after review; exact SHA in git log. Current executor assignment settled; no new task dispatched. Next: hydrated read-only TESTNET browser smoke; no signing or funds.

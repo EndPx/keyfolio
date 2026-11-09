@@ -2,13 +2,13 @@
 
 /**
  * Trader Studio client: real trader status, claimable earnings and a real
- * ft_withdraw through the wallet (selector action builders - no casts).
+ * ft_withdraw through the wallet (shared selector action builder — no casts).
  */
 
-import { transactions } from 'near-api-js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useWallet } from '../../wallet/WalletContext';
 import { createTestnetClient } from '../../testnet';
+import { buildWithdrawActions } from '../../nearActions';
 
 export function StudioClient({ rpcUrl, accessContract }: { rpcUrl: string; accessContract: string }) {
   const { accountId, connecting, signIn, selector } = useWallet();
@@ -18,7 +18,7 @@ export function StudioClient({ rpcUrl, accessContract }: { rpcUrl: string; acces
   );
   const [claimable, setClaimable] = useState<string | null>(null);
   const [trader, setTrader] = useState<{
-    salesEnabled: boolean;
+    sales_enabled: boolean;
     terminated: boolean;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +34,7 @@ export function StudioClient({ rpcUrl, accessContract }: { rpcUrl: string; acces
         client.viewTrader(accountId),
       ]);
       setClaimable(c);
-      setTrader(t ? { salesEnabled: t.salesEnabled, terminated: t.terminated } : null);
+      setTrader(t ? { sales_enabled: t.sales_enabled, terminated: t.terminated } : null);
     } catch (err) {
       setError(String((err as Error).message ?? err).slice(0, 240));
     }
@@ -53,11 +53,7 @@ export function StudioClient({ rpcUrl, accessContract }: { rpcUrl: string; acces
       await wallet.signAndSendTransaction({
         signerId: accountId,
         receiverId: accessContract,
-        actions: [
-          // Single deduped near-api-js instance (verified in pnpm-lock) makes
-          // this cast type-only; see evidence note on pass-1 finding 8.
-          transactions.functionCall('ft_withdraw', { amount: null }, 250n * 10n ** 12n, 1n) as never,
-        ],
+        actions: buildWithdrawActions(),
       });
       setOutcome('Withdraw transaction submitted - the payout callback settles after finality.');
       await load();
@@ -86,7 +82,7 @@ export function StudioClient({ rpcUrl, accessContract }: { rpcUrl: string; acces
           {trader
             ? trader.terminated
               ? 'Service terminated - earnings frozen at the contract cutoff (KF-D010).'
-              : trader.salesEnabled
+              : trader.sales_enabled
                 ? 'Sales enabled - service active.'
                 : 'Sales paused by the operator.'
             : 'This wallet is not enrolled as a seller on the contract yet.'}

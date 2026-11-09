@@ -56,7 +56,7 @@ export function resolveAppConfig(env: EnvLike): AppConfigResult {
   const mode = modeResult.value;
 
   const required = REQUIRED_BY_MODE[mode];
-  const missingRequired = required.filter((k) => !env[k] || env[k]!.trim() === '');
+  const missingRequired = [...new Set(required.filter((k) => !env[k] || env[k]!.trim() === ''))];
 
   let network: KnownNetwork | null = null;
   const nearNetwork = env.NEAR_NETWORK;
