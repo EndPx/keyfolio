@@ -18,9 +18,10 @@ for (const [name, width, height, reduced] of [
     marketingNav: Boolean(document.querySelector('.landing-nav')),
     appShell: Boolean(document.querySelector('.sidebar, .banner')),
   }));
-  const cta = await page.getByRole('button', { name: /Preview wallet|Preview connected|Wallet unavailable|Connect NEAR wallet/ }).count();
+  const cta = await page.getByRole('button', { name: /Open the demo|Demo opened|Wallet unavailable|Connect NEAR wallet/ }).count();
+  const scenario = await page.getByText('Choose trader').count();
   await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
-  console.log(name, JSON.stringify({ ...result, cta, reduced }));
+  console.log(name, JSON.stringify({ ...result, cta, scenario, reduced }));
   await page.close();
 }
 
