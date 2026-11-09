@@ -6,7 +6,7 @@ Material integration choices follow KF-D012 NEAR ecosystem first; consult/update
 
 Authority: explicit user decisions > decisions.md amendments > baseline file 01 for product behavior > baseline file 02 for acceptance. Status records evidence; it cannot redefine requirements. Preserve the four baseline files byte-for-byte.
 
-Codex coordinates, freezes interfaces, reviews diffs and accepts evidence. Implementation executor: actual DeepSeek Harness, GATER provider route, DeepSeek Flash model through Orca. Prove task receipt/result/review first; never relabel another executor. Use installed version-matched Orca guides and follow dispatch lifecycle. One implementation writer per checkout; Codex owns docs/status and integration. Do not restart a worker based on silence.
+Codex coordinates, freezes interfaces, reviews diffs and accepts evidence. Current user-authorized executor: Orca Codex worker with model gpt-6.1-terra (KF-D016); earlier DeepSeek Harness/GATER/Flash C00 remains accepted historical proof. Do not relabel another model or repeat accepted bootstrap. Use installed version-matched Orca guides and follow dispatch lifecycle. One implementation writer per checkout; primary Codex owns docs/status and integration. Do not restart a worker based on silence.
 
 Preserve account-following, including supported external-interface activity. App-only coverage, scope cuts, custody changes and customer-right changes require user decisions. A readable idle account is healthy. Assisted-copy age uses trustworthy source execution/confirmation time; discovery/backfill time cannot make an old trade eligible.
 

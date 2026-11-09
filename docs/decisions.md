@@ -1,5 +1,11 @@
 # Keyfolio decisions
 
+## KF-D016 — Codex Terra executor authorized for remaining delivery
+
+Date:2026-11-09. Owner:user. Status:binding; supersedes the executor-only restriction in KF-D008/AGENTS for this delivery phase.
+
+User explicitly authorized Codex workers using Terra to implement missing work and continue through the project. Primary Codex remains coordinator, architect, integration owner and acceptance reviewer. Use actual Orca Codex worker with model gpt-6.1-terra; never relabel another model. DeepSeek C00 remains accepted historical evidence; do not repeat it to authorize Terra. Keep small reviewable milestones, clear file ownership, relevant checks, reviewed commits/pushes and automatic next-ready-task continuation. No extra provider/model purchase or permission implied. Existing source/provider, money, paid-service, signing, deployment and public-launch gates remain intact. All completion claims remain evidence-based; account-following and NEAR-first/testnet-first/FigCraft-first decisions remain binding.
+
 Latest explicit user instructions override the immutable handoff. Implementation choices below are accepted working defaults; public-commercial approvals are separate.
 
 ## KF-D001 — Account health measures access and valid observations
