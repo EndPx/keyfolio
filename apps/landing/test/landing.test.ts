@@ -24,6 +24,10 @@ test('landing uses a sparse staged journey with the product relationship in the 
   assert.match(source, /relationship-map/);
   assert.match(source, /journey-sticky/);
   assert.match(source, /scene-stage/);
+  assert.match(source, /data-scene-state/);
+  assert.match(source, /ACCESS KEY/);
+  assert.match(source, /PRIVATE API/);
+  assert.match(source, /COPY ELIGIBLE/);
   assert.match(source, /Choose a trader/);
   assert.match(source, /Compare coverage/);
   assert.match(source, /Buy access key/);
@@ -32,6 +36,8 @@ test('landing uses a sparse staged journey with the product relationship in the 
   assert.doesNotMatch(source, /process-step|proof-grid/);
   assert.match(css, /\.journey-section\{position:relative;min-height:500vh/);
   assert.match(css, /\.landing\[data-step="4"\] \.scene-art/);
+  assert.match(css, /\.landing\{overflow-x:clip;overflow-y:visible\}/);
+  assert.match(css, /\.scene-stage\[data-scene-state="eligible"\] \.scene-line/);
 });
 
 test('landing keeps CTA hierarchy and accessible mode status', async () => {

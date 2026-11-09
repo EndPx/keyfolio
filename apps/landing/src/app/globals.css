@@ -3,3 +3,29 @@
 @media (max-width:1024px){.landing-hero{grid-template-columns:1fr;gap:28px;padding-top:60px}.hero-copy{max-width:760px}.hero-stage{min-height:560px}.journey-sticky{grid-template-columns:1fr;gap:28px;padding:8vh 6vw}.journey-intro{max-width:760px}.scene-stage{min-height:560px}.context-section{grid-template-columns:1fr;gap:50px}.context-notes{max-width:760px}}
 @media (max-width:640px){.landing-nav{padding:0 20px}.landing-nav nav{gap:0}.landing-nav nav a:not(.nav-cta){display:none}.landing-hero{min-height:auto;padding:44px 20px 90px}.hero-copy h1{font-size:clamp(46px,14vw,62px)}.hero-lede{font-size:15px}.hero-actions{display:grid;grid-template-columns:1fr}.landing-btn{width:100%}.hero-stage{min-height:430px;border-radius:26px}.hero-art{width:116%;left:-8%;top:78px}.relationship-map{transform:scale(.82);transform-origin:center}.map-trader{top:22%;left:3%}.map-key{top:30%;right:3%}.proof-artifact{left:5%;right:5%;bottom:16px;padding:15px 16px}.proof-artifact h2{font-size:17px}.artifact-state{display:block}.artifact-state strong{display:block;font-size:16px}.artifact-state span{display:block;margin-top:7px;font-size:11px}.journey-section{min-height:400vh}.journey-sticky{display:block;padding:36px 20px;min-height:100vh}.journey-intro h2{font-size:42px}.journey-intro>p:last-of-type{font-size:14px}.scene-index{margin-top:28px}.scene-stage{min-height:470px;margin-top:38px;border-radius:28px}.scene-art{width:126%;left:-13%;top:22%}.scene-card{left:5%;right:5%;bottom:7%;padding:18px}.scene-card h3{font-size:23px}.scene-word{top:10%;right:7%;font-size:46px}.scene-dot-left{left:10%;top:43%}.scene-dot-right{right:10%;top:34%}.scene-line{left:16%;right:16%}.scene-scroll{display:none}.context-section{padding:100px 20px 120px}.context-copy h2{font-size:42px}.context-notes{grid-template-columns:1fr;gap:8px}.context-notes article{min-height:auto;padding:20px 0}.context-notes h3{margin:18px 0 5px}.landing-cta{display:block;margin:0 20px 50px;padding:36px 22px;border-radius:24px}.landing-cta h2{font-size:42px}.cta-actions{margin-top:28px;max-width:none}.landing-footer{flex-direction:column;padding:22px 20px 36px}}
 .skip-link{position:absolute;left:-9999px;top:0;z-index:10;padding:10px 16px;border-radius:0 0 12px 0;background:#fff;color:#090a0f;font-weight:700}.skip-link:focus{left:0}
+
+/* Parity capture guard: every journey state keeps the stage, art, path, and card in frame. */
+.scene-stage{min-height:620px;background:radial-gradient(circle at 50% 38%,rgba(55,74,189,.34),transparent 44%),#090c15}
+.scene-art{width:96%;left:2%;top:23%;transform:translate(0,0) scale(1)!important;filter:saturate(.98) contrast(1.05)}
+.scene-card{left:8%;right:8%;bottom:8%;transform:none!important}
+.scene-connection{transform:none!important}
+.scene-orbit{transform:none!important}
+.scene-word{top:10%;right:8%;transform:none!important;color:rgba(161,181,255,.24)}
+.scene-stage[data-scene-state="trace"] .scene-line{left:20%;right:20%;top:41%;transform:rotate(-8deg)}
+.scene-stage[data-scene-state="key"] .scene-line{left:27%;right:27%;top:39%;transform:rotate(12deg)}
+.scene-stage[data-scene-state="private"] .scene-line{left:31%;right:31%;top:43%;transform:rotate(-3deg)}
+.scene-stage[data-scene-state="eligible"] .scene-line{left:36%;right:18%;top:37%;transform:rotate(-15deg)}
+.scene-stage[data-scene-state="key"] .scene-orbit{transform:translateX(5%) rotate(18deg) scale(.96)}
+.scene-stage[data-scene-state="private"] .scene-orbit{transform:translateX(-5%) rotate(42deg) scale(.92)}
+.scene-stage[data-scene-state="eligible"] .scene-orbit{transform:translateX(7%) rotate(68deg) scale(.88)}
+.scene-stage[data-scene-state="key"] .scene-card{border-color:#7385ce}
+.scene-stage[data-scene-state="private"] .scene-card{border-color:#8798e8}
+.scene-stage[data-scene-state="eligible"] .scene-card{border-color:var(--green)}
+.scene-stage[data-scene-state="key"] .scene-word{color:rgba(158,180,255,.3)}
+.scene-stage[data-scene-state="private"] .scene-word{color:rgba(158,180,255,.34)}
+.scene-stage[data-scene-state="eligible"] .scene-word{color:rgba(112,229,163,.34)}
+@media (max-width:640px){.scene-stage{min-height:470px}.scene-art{width:112%;left:-6%;top:24%}.scene-card{left:5%;right:5%;bottom:7%}.scene-word{top:9%;right:7%;font-size:44px}}
+
+/* Sticky scene must remain viewport-owned through the full five-beat section. */
+.landing{overflow-x:clip;overflow-y:visible}
+@media (prefers-reduced-motion:reduce){.journey-sticky{position:sticky;top:0}.scene-scroll{display:block}}

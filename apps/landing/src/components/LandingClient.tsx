@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { getLandingWalletState, type LandingMode } from './landingContract';
@@ -66,7 +66,7 @@ export function LandingClient({ mode, configError }: { mode: LandingMode; config
       </section>
 
       <section ref={stageRef} id="journey" className="journey-section" aria-labelledby="journey-title">
-        <div className="journey-sticky"><div className="journey-intro"><p className="landing-kicker">One relationship, five beats</p><h2 id="journey-title">The path stays visible<br /><span>as the access changes.</span></h2><p>Scroll through the decision. One scene owns the viewport at a time.</p><div className="scene-index" aria-label="Current journey step"><span>0{activeStep + 1}</span><i /> <span>05</span></div></div><div className="scene-stage"><div className="scene-glow" /><div className="scene-orbit" /><div className="scene-connection"><span className="scene-dot scene-dot-left" /><span className="scene-line" /><span className="scene-dot scene-dot-right" /></div><img className="scene-art" src="/hero-keyfolio.png" alt="" aria-hidden="true" /><div className="scene-card"><p className="eyebrow">{current[0]}</p><h3>{current[1]}</h3><p>{current[2]}</p></div><div className="scene-word" aria-hidden="true">{activeStep < 2 ? 'TRACE' : activeStep === 2 ? 'KEY' : activeStep === 3 ? 'PRIVATE' : 'ELIGIBLE'}</div></div></div>
+        <div className="journey-sticky"><div className="journey-intro"><p className="landing-kicker">One relationship, five beats</p><h2 id="journey-title">The path stays visible<br /><span>as the access changes.</span></h2><p>Scroll through the decision. One scene owns the viewport at a time.</p><div className="scene-index" aria-label="Current journey step"><span>0{activeStep + 1}</span><i /> <span>05</span></div></div><div className="scene-stage" data-scene-state={activeStep < 2 ? 'trace' : activeStep === 2 ? 'key' : activeStep === 3 ? 'private' : 'eligible'}><div className="scene-glow" /><div className="scene-orbit" /><div className="scene-connection"><span className="scene-dot scene-dot-left" /><span className="scene-line" /><span className="scene-dot scene-dot-right" /></div><img className="scene-art" src="/hero-keyfolio.png" alt="" aria-hidden="true" /><div className="scene-card"><p className="eyebrow">{current[0]} / {activeStep < 2 ? 'TRACE' : activeStep === 2 ? 'ACCESS KEY' : activeStep === 3 ? 'PRIVATE API' : 'COPY ELIGIBLE'}</p><h3>{current[1]}</h3><p>{current[2]}</p></div><div className="scene-word" aria-hidden="true">{activeStep < 2 ? 'TRACE' : activeStep === 2 ? 'KEY' : activeStep === 3 ? 'PRIVATE' : 'ELIGIBLE'}</div></div></div>
         <div className="scene-scroll" aria-hidden="true">{scenes.map(([number, title]) => <div className="scene-beat" key={number} data-scene={number}><span>{number}</span><span>{title}</span></div>)}</div>
       </section>
 

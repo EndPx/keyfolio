@@ -4,7 +4,28 @@ import { mkdir } from 'node:fs/promises';
 const baseUrl = process.env.KEYFOLIO_LANDING_URL ?? 'http://localhost:3100/';
 const out = 'docs/evidence/KF-08/landing-cleanup';
 await mkdir(out, { recursive: true });
-const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' });
+const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
+const browser = await chromium.launch({ headless: true, executablePath });
+const observations = [];
+
+async function probeJourney(page) {
+  const positions = await page.evaluate(() => {
+    const section = document.querySelector('#journey');
+    if (!section) throw new Error('journey section missing');
+    const top = section.getBoundingClientRect().top + scrollY;
+    return Array.from({ length: 5 }, (_, index) => Math.round(top + section.offsetHeight * ((index + 0.5) / 5) - innerHeight * 0.5));
+  });
+  const states = [];
+  for (const target of positions) {
+    await page.evaluate((value) => window.scrollTo({ top: value, behavior: 'auto' }), target);
+    await page.waitForTimeout(160);
+    states.push(await page.evaluate(() => {
+      const visible = (selector) => { const node = document.querySelector(selector); if (!node) return false; const r = node.getBoundingClientRect(); return r.width > 40 && r.height > 30 && r.bottom > 0 && r.top < innerHeight; };
+      return { step: Number(document.querySelector('.landing')?.getAttribute('data-step') ?? -1), state: document.querySelector('.scene-stage')?.getAttribute('data-scene-state') ?? null, card: document.querySelector('.scene-card')?.textContent?.replace(/\s+/g, ' ').trim() ?? '', stageVisible: visible('.scene-stage'), artVisible: visible('.scene-art'), relationshipVisible: visible('.scene-connection'), cardVisible: visible('.scene-card') };
+    }));
+  }
+  return states;
+}
 
 for (const [name, width, height, reduced] of [
   ['landing-1440', 1440, 900, false],
@@ -17,26 +38,16 @@ for (const [name, width, height, reduced] of [
     overflow: document.documentElement.scrollWidth > window.innerWidth,
     marketingNav: Boolean(document.querySelector('.landing-nav')),
     appShell: Boolean(document.querySelector('.sidebar, .banner')),
-    heroScenario: document.querySelectorAll('.hero-scenario').length,
     heroImage: Boolean(document.querySelector('.hero-stage .hero-art')),
+    relationshipMap: Boolean(document.querySelector('.hero-stage .relationship-map')),
     bannedCopy: Array.from(document.querySelectorAll('.landing-hero *:not(.sr-only)')).some((node) => node.children.length === 0 && /Demo mode is (simulated|open)\./.test(node.textContent ?? '')),
-    visibleStatus: (() => {
-      const node = document.querySelector('[role="status"]');
-      if (!node) return false;
-      const style = getComputedStyle(node);
-      return style.display !== 'none' && style.visibility !== 'hidden' && style.clip !== 'rect(0px, 0px, 0px, 0px)' && node.getBoundingClientRect().width > 1;
-    })(),
+    visibleStatus: (() => { const node = document.querySelector('[role="status"]'); if (!node) return false; const style = getComputedStyle(node); return style.display !== 'none' && style.visibility !== 'hidden' && node.getBoundingClientRect().width > 1; })(),
   }));
-  const cta = await page.getByRole('button', { name: /Open the demo|Demo opened|Wallet unavailable|Connect NEAR wallet/ }).count();
-  const scenario = await page.locator('.hero-scenario span').count();
-  const maxScroll = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
-  for (const fraction of [0, 0.35, 0.7, 1]) {
-    await page.evaluate((value) => window.scrollTo({ top: value, behavior: 'auto' }), Math.round(maxScroll * fraction));
-    await page.waitForTimeout(180);
-  }
+  const states = await probeJourney(page);
   await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
-  if (result.heroScenario !== 0 || scenario !== 0 || result.bannedCopy || result.visibleStatus || !result.heroImage) throw new Error('hero cleanup failed for ' + name + ': ' + JSON.stringify({ ...result, cta, scenario, reduced }));
-  console.log(name, JSON.stringify({ ...result, cta, scenario, reduced }));
+  if (result.bannedCopy || result.visibleStatus || !result.heroImage || !result.relationshipMap || states.some((state) => !state.stageVisible || !state.artVisible || !state.relationshipVisible || !state.cardVisible)) throw new Error(`landing evidence failed for ${name}: ${JSON.stringify({ result, states })}`);
+  observations.push({ name, ...result, states });
+  console.log(name, JSON.stringify({ ...result, states }));
   await page.close();
 }
 
@@ -45,6 +56,7 @@ for (const width of [375, 390, 768, 1280, 1440]) {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   console.log(`responsive-${width}`, JSON.stringify({ overflow }));
+  if (overflow) throw new Error(`horizontal overflow at ${width}`);
   await page.close();
 }
 await browser.close();
