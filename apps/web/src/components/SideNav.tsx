@@ -17,7 +17,14 @@ export function SideNav() {
   return (
     <nav className="sidebar" aria-label="Primary">
       <div className="logo-row">
-        <span className="logo-mark" aria-hidden="true">K</span>
+        <img
+          className="logo-mark"
+          src="/brand/keyfolio-symbol-v1.png"
+          alt=""
+          width={30}
+          height={30}
+          aria-hidden="true"
+        />
         <span className="logo-text">Keyfolio</span>
       </div>
       <div className="nav-links">

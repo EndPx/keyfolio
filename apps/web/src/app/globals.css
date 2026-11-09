@@ -12,6 +12,7 @@
   --ink70: rgba(255, 255, 255, 0.7);
   --ink55: rgba(255, 255, 255, 0.55);
   --ink45: rgba(255, 255, 255, 0.58);
+  --ink38: rgba(255, 255, 255, 0.38);
   --ink40: rgba(255, 255, 255, 0.55);
   --ink35: rgba(255, 255, 255, 0.62);
   --ink30: rgba(255, 255, 255, 0.3);
@@ -69,6 +70,7 @@ a:hover { text-decoration: none; }
 .banner-error strong { color: var(--warn); }
 .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
 .dot-warn { background: var(--warn); }
+.dot-live { background: var(--up); }
 .dot-block { background: var(--ink30); }
 
 /* Shell */
@@ -83,10 +85,7 @@ a:hover { text-decoration: none; }
 .logo-row { display: flex; align-items: center; gap: 10px; padding: 0 12px; }
 .logo-mark {
   width: 30px; height: 30px; border-radius: 11px;
-  background: radial-gradient(circle at 32% 26%, #5b93ff, #1b44ce 74%);
-  color: #fff; display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-baloo), var(--font-inter), sans-serif;
-  font-size: 16px; font-weight: 800;
+  display: block; flex: 0 0 30px; object-fit: contain;
 }
 .logo-text {
   font-family: var(--font-baloo), var(--font-inter), sans-serif;
@@ -133,19 +132,6 @@ a:hover { text-decoration: none; }
 .seller-name { font-size: 16px; line-height: 21px; font-weight: 700; }
 .seller-handle { font-size: 11.5px; line-height: 16px; color: var(--ink38); }
 .seller-approach { font-size: 13.5px; line-height: 1.5; color: var(--ink45); margin: 0; }
-
-/* Purchase-prerequisite gates - ok=white/ghost, blocked=amber (NOT P&L) */
-.gates { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.gate {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 13px; line-height: 20px; padding: 9px 14px;
-  border-radius: 14px; background: var(--surface);
-  border: 1px solid var(--card-border); color: var(--ink70);
-}
-.gate.ok { color: var(--ink); }
-.gate.blocked { color: var(--warn); border-color: rgba(232, 198, 74, 0.35); }
-.chip-failed { background: rgba(232, 198, 74, 0.12); color: var(--warn); }
-.studio-stack { display: flex; flex-direction: column; gap: 14px; }
 
 /* Purchase-prerequisite gates - ok=white/ghost, blocked=amber (NOT P&L) */
 .gates { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }

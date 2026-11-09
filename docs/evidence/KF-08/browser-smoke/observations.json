@@ -2,7 +2,7 @@
   {
     "width": 1440,
     "route": "/checkout/carla",
-    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nK\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nCheckout\n\nTESTNET · near testnet · read-only preflight + real wallet signing · no fixture numbers\n\nContract query failed: NEAR testnet preflight timed out; retry when RPC is available.\n\nRetry",
+    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nCheckout\n\nTESTNET · near testnet · read-only preflight + real wallet signing · no fixture numbers\n\nContract query failed: NEAR testnet preflight timed out; retry when RPC is available.\n\nRetry",
     "buttons": [
       {
         "text": "Retry",
@@ -10,14 +10,12 @@
       }
     ],
     "overflow": false,
-    "errors": [
-      "console: Failed to load resource: the server responded with a status of 404 (Not Found)"
-    ]
+    "errors": []
   },
   {
     "width": 1440,
     "route": "/keys",
-    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nK\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nMy Keys\n\nConnect your NEAR wallet to list the access keys (NFT licenses) you own.\n\nConnect wallet",
+    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nMy Keys\n\nConnect your NEAR wallet to list the access keys (NFT licenses) you own.\n\nConnect wallet",
     "buttons": [
       {
         "text": "Connect wallet",
@@ -30,7 +28,7 @@
   {
     "width": 1440,
     "route": "/studio",
-    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nK\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nTrader Studio\n\nSeller console · performance metrics are computed by Keyfolio and cannot be edited here\n\nConnect the seller wallet to manage the listing and earnings.\n\nConnect wallet",
+    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nTrader Studio\n\nSeller console · performance metrics are computed by Keyfolio and cannot be edited here\n\nConnect the seller wallet to manage the listing and earnings.\n\nConnect wallet",
     "buttons": [
       {
         "text": "Connect wallet",
@@ -43,7 +41,7 @@
   {
     "width": 390,
     "route": "/checkout/carla",
-    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nK\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nCheckout\n\nTESTNET · near testnet · read-only preflight + real wallet signing · no fixture numbers\n\nContract query failed: NEAR testnet preflight timed out; retry when RPC is available.\n\nRetry",
+    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nCheckout\n\nTESTNET · near testnet · read-only preflight + real wallet signing · no fixture numbers\n\nContract query failed: NEAR testnet preflight timed out; retry when RPC is available.\n\nRetry",
     "buttons": [
       {
         "text": "Retry",
@@ -56,7 +54,7 @@
   {
     "width": 390,
     "route": "/keys",
-    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nK\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nMy Keys\n\nConnect your NEAR wallet to list the access keys (NFT licenses) you own.\n\nConnect wallet",
+    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nMy Keys\n\nConnect your NEAR wallet to list the access keys (NFT licenses) you own.\n\nConnect wallet",
     "buttons": [
       {
         "text": "Connect wallet",
@@ -69,7 +67,7 @@
   {
     "width": 390,
     "route": "/studio",
-    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nK\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nTrader Studio\n\nSeller console · performance metrics are computed by Keyfolio and cannot be edited here\n\nConnect the seller wallet to manage the listing and earnings.\n\nConnect wallet",
+    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nTrader Studio\n\nSeller console · performance metrics are computed by Keyfolio and cannot be edited here\n\nConnect the seller wallet to manage the listing and earnings.\n\nConnect wallet",
     "buttons": [
       {
         "text": "Connect wallet",
@@ -81,7 +79,7 @@
   },
   {
     "scenario": "synthetic RPC blocked",
-    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nK\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nCheckout\n\nTESTNET · near testnet · read-only preflight + real wallet signing · no fixture numbers\n\nContract query failed: NEAR testnet preflight timed out; retry when RPC is available.\n\nRetry",
+    "body": "Skip to content\nTESTNET · near testnet · live contract queries + wallet signing wired · no fixture fallback is served in this mode.\nKeyfolio\nMarketplace\nMy Keys\nPrivate Account\nAPI Access\nTrader Studio\nActivity\nCheckout\n\nTESTNET · near testnet · read-only preflight + real wallet signing · no fixture numbers\n\nContract query failed: NEAR testnet preflight timed out; retry when RPC is available.\n\nRetry",
     "buttons": [
       {
         "text": "Retry",

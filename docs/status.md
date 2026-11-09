@@ -54,3 +54,5 @@ Internal target2026-11-14 23:59 WIB. Schedule is at risk: full foundation/API/au
 
 
 Terra browser smoke accepted PASS_LOCAL read-only: real Chrome at1440/390 executed checkout/keys/studio, bounded RPC timeout error/retry, no mobile overflow, no signing. Evidence:[browser-smoke-acceptance](evidence/KF-08/browser-smoke-acceptance.md). Wallet signing/purchase/private entitlement remain NOT_RUN; FT/G02 and source/G01 remain blockers.
+
+Visual patch checkpoint (2026-11-09): PASS_LOCAL. Existing `assets/brand/keyfolio-symbol-v1.png` is copied byte-for-byte to `apps/web/public/brand/keyfolio-symbol-v1.png` and used by `SideNav` with fixed dimensions and decorative alt handling; the same master is exposed as `apps/web/src/app/icon.png` to remove the favicon 404. The missing `--ink38` token and TESTNET `dot-live` color are defined; one verbatim duplicate gate CSS block is removed. Responsive shell behavior and KF-D016 mode/honesty/account-following contracts are unchanged. Evidence: [visual-patch-2026-11-09](evidence/KF-08/visual-patch-2026-11-09.md). Validation: `pnpm --filter @keyfolio/web typecheck`, `pnpm --filter @keyfolio/web build` PASS_LOCAL.
