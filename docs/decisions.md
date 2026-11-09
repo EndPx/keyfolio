@@ -141,3 +141,12 @@ Date:2026-11-09. Owner:user. Status:binding design direction (supersedes the vis
 The user approved the hackathon prototype direction and directed the UI/UX to follow https://github.com/nickthelegend/xorr-solana (its published design document ui/mobile-ui/design.md). Adopted language for Keyfolio web screens: true-black background (#000000) with dark surfaces (#0C0C0D/#141516/#1B1C1E), hairline borders (rgba(255,255,255,.05-.09)), the white ink scale, Inter for all text with tabular numerals (Baloo 2 ExtraBold wordmark only), eyebrow labels (10-11px, 600, +.12em, uppercase), large radius scale (cards 22-26px, primary buttons pill 30-34px), minimal shadows, and radial-gradient identity marks for sellers. Green/red are RESERVED for P&L only; selection state is white-on-dark. Data-dense, receipt-and-proof-first layouts.
 
 Unchanged by this pivot: every honesty requirement (illustrative-sample labels, unavailable-with-reason metrics, sales blocking per coverage/source health, "Tracked performance" wording), accessibility targets, and the acceptance matrix. No new features are introduced by the restyle. Keyfolio does not copy Xorr assets or code — only the published visual language is referenced.
+## KF-D017 — Landing-first motion and curved dashboard surfaces
+
+Date: 2026-11-10. Owner: user. Status: binding UI direction for the next frontend slice.
+
+The public landing page is the first web surface to complete. It follows the approved Xorr-inspired dark language with a motion-led hero, a floating tracked-performance card, rounded panels and a visible `Connect NEAR wallet` path. The landing page is Keyfolio-owned: no Xorr logo, asset, copy or product claim is copied. The editable FigCraft contract is `Screen / 00 Landing desktop 1440` in `design/mockups/keyfolio-screens-v1.figcraft`.
+
+The dashboard keeps rounded sheet/card surfaces like the user references. Curves carry hierarchy and containment; charts may use sharp geometry only where the data requires it. Motion uses only transform/opacity/filter, preserves reduced-motion fallbacks, and must map to navigation, focus, loading or data state rather than looping decoration.
+
+The wallet CTA is functional by mode: FIXTURE has an explicit simulated state, TESTNET opens the existing NEAR Wallet Selector and account state, and LIVE is fail-closed until the production wallet/deployment gates are accepted. This is a presentation and interaction decision; it does not authorize signing, funding, deployment or a mainnet launch.

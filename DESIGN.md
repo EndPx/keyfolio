@@ -98,3 +98,34 @@ White panels over cool background, subtle dividers. No shadow on ordinary rows/c
 WCAG2.2 AA target: text4.5:1, large text3:1, controls/focus3:1; complete keyboard access, labeled SVG icons, skip link, table headers, chart text alternative, 200% zoom/reflow, reduced motion. Confirm wallet dialogs and transaction states with keyboard, not screenshots alone. Signing and retry instructions must be understandable without blockchain implementation details.
 
 Open validation: no product UI or primitive showcase yet; font licensing/install, measured contrast, mobile/tablet/desktop states and logo small-size QA remain NOT_RUN. These are required implementation checks, not accepted production debt. No user-approved accessibility exceptions.
+
+## 9. Landing and curved-surface direction (KF-D017)
+
+The first public web surface is a motion-led landing page. Its job is to explain
+the product promise, prove that the metrics are tracked rather than seller-entered,
+and route the visitor to either `Connect NEAR wallet` or `Explore traders`. The
+landing page uses the approved KF-D016 Xorr-inspired dark language, but it is a
+marketing surface rather than an app-shell screen.
+
+The landing contract is captured in `design/mockups/keyfolio-screens-v1.figcraft`
+as `Screen / 00 Landing desktop 1440`. The memorable moment is a floating tracked
+performance card over a cobalt atmospheric orb, with a rounded equity ribbon. The
+copy remains Keyfolio-owned; Xorr assets, logos and product claims are not copied.
+
+Landing tokens:
+
+- true black canvas, `#0C0C0D` floating card, hairline white rim, cobalt glow,
+  green P&L only;
+- 72px desktop hero / 44px mobile hero, Inter 700; Baloo 2 remains wordmark-only;
+- 36px card radius, 30px CTA radius, 20px minimum text/interaction rhythm;
+- motion is GPU-composited (`transform`, `opacity`, `filter`) and has a reduced-
+  motion fallback. Motion must explain navigation, card focus, or data activity;
+  decorative loops without user or data meaning are not permitted;
+- the primary CTA is wallet-aware: FIXTURE exposes a labeled simulated state,
+  TESTNET opens the existing NEAR Wallet Selector, and LIVE remains fail-closed;
+- dashboard panels keep the rounded sheet/card grammar. Sharp rectangular blocks
+  are reserved for chart geometry, table dividers and focus outlines.
+
+Landing responsive states are required at 375px, 390px, 768px, 1280px and 1440px.
+The hero stacks on narrow screens, preserves the wallet CTA in the first viewport,
+and keeps the floating performance card readable without horizontal overflow.
