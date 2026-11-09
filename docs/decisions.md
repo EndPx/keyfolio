@@ -150,3 +150,24 @@ The public landing page is the first web surface to complete. It follows the app
 The dashboard keeps rounded sheet/card surfaces like the user references. Curves carry hierarchy and containment; charts may use sharp geometry only where the data requires it. Motion uses only transform/opacity/filter, preserves reduced-motion fallbacks, and must map to navigation, focus, loading or data state rather than looping decoration.
 
 The wallet CTA is functional by mode: FIXTURE has an explicit simulated state, TESTNET opens the existing NEAR Wallet Selector and account state, and LIVE is fail-closed until the production wallet/deployment gates are accepted. This is a presentation and interaction decision; it does not authorize signing, funding, deployment or a mainnet launch.
+## KF-D018 — Separate landing application and 70/20/10 narrative
+
+Date: 2026-11-10. Owner: user. Status: binding.
+
+Keyfolio has two visual surfaces:
+
+- `apps/landing` is the public marketing/education surface. It owns the catchy
+  motion, the 70/20/10 composition, scenario storytelling and the first wallet CTA.
+- `apps/web` is the authenticated application shell. It owns Marketplace, trader
+  profiles, checkout, keys, private account, API Access, Studio and Activity. Its
+  visual language stays rounded, quiet and data-legible.
+
+The landing story must make the product flow explicit: choose the trader, compare
+tracked coverage/performance, buy a transferable access NFT key, unlock private read
+and API access, then use assisted copy only when the source timestamp, entitlement
+and follower-signature rules allow it. The landing may use intentionally expressive
+AI-assisted visual texture or motion in its 10% impression layer, but it may not
+invent live performance, ownership, source access or transaction success.
+
+The separation is an architecture and navigation rule. It does not authorize wallet
+signing, provider access, deployment, paid services or a mainnet launch.

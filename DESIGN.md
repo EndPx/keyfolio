@@ -101,7 +101,8 @@ Open validation: no product UI or primitive showcase yet; font licensing/install
 
 ## 9. Landing and curved-surface direction (KF-D017)
 
-The first public web surface is a motion-led landing page. Its job is to explain
+The first public web surface is a motion-led landing page in a separate
+`apps/landing` application. Its job is to explain
 the product promise, prove that the metrics are tracked rather than seller-entered,
 and route the visitor to either `Connect NEAR wallet` or `Explore traders`. The
 landing page uses the approved KF-D016 Xorr-inspired dark language, but it is a
@@ -129,3 +130,19 @@ Landing tokens:
 Landing responsive states are required at 375px, 390px, 768px, 1280px and 1440px.
 The hero stacks on narrow screens, preserves the wallet CTA in the first viewport,
 and keeps the floating performance card readable without horizontal overflow.
+
+The landing page uses a deliberate 70/20/10 composition:
+
+- **70% primary:** black canvas, white display type, and the main narrative path;
+- **20% support:** dark rounded panels, muted explanatory copy, navigation and
+  scenario steps;
+- **10% impression:** cobalt/lilac glow, animated ribbon, cursor-catching CTA
+  treatment and generative visual texture.
+
+The 10% impression layer may feel intentionally expressive or AI-generated, but it
+must stay tied to a product scenario and never fabricate live trader results. The
+landing narrative is: choose a trader → inspect tracked coverage/performance → buy
+the access NFT key → unlock private account/API views → use assisted copy only when
+source time and entitlement rules allow it, with the follower signing from their
+own wallet. The dashboard is an app surface and keeps the quieter rounded data
+workspace grammar.
