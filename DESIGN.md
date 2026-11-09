@@ -146,3 +146,19 @@ the access NFT key → unlock private account/API views → use assisted copy on
 source time and entitlement rules allow it, with the follower signing from their
 own wallet. The dashboard is an app surface and keeps the quieter rounded data
 workspace grammar.
+## 10. Dashboard visual reference: light analytical workspace (KF-D019)
+
+The user supplied a dashboard reference with a dark navigation rail, a white analytical canvas, rounded black action buttons, a large balance/chart surface, asset rows, recent activity and a mobile companion layout. This now supersedes the dark Xorr surface for `apps/web` app screens. The Xorr-inspired direction remains limited to `apps/landing`.
+
+Dashboard tokens:
+
+- app canvas `#F6F7F9`, white panels, black/near-black text, muted gray labels;
+- dark rail `#232323` with rounded outer frame and compact icon/text navigation;
+- panel radius 18–28px, outer shell radius 28–36px, controls radius 12–28px;
+- primary actions are black pills; positive/negative values use restrained green/red and always carry signs or words;
+- desktop composition: rail + main dashboard + pending-request rail;
+- mobile composition: single-column dashboard with a compact bottom navigation or segmented tabs; no horizontal overflow;
+- chart is a quiet line/area chart with a tooltip state, period selector and refresh affordance; tables use rounded rows with explicit balance/price/weight columns;
+- the dashboard must show app state and data provenance without importing the landing hero's marketing motion.
+
+The supplied screenshot is a visual contract for structure and material, not a claim that Keyfolio owns the reference asset or its data. All balances, assets, requests and trader metrics shown by Keyfolio remain fixture-labeled until the appropriate source and chain evidence exists.

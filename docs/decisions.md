@@ -171,3 +171,17 @@ invent live performance, ownership, source access or transaction success.
 
 The separation is an architecture and navigation rule. It does not authorize wallet
 signing, provider access, deployment, paid services or a mainnet launch.
+## KF-D019 — Light analytical app shell from user reference
+
+Date: 2026-11-10. Owner: user. Status: binding for `apps/web` app screens.
+
+The dashboard/application should follow the supplied light analytical reference:
+white canvas and panels, dark rounded navigation rail, black pill actions, clean
+line/area chart, asset table, request rail and a mobile companion layout. This
+supersedes KF-D016's dark visual tokens for `apps/web` only. KF-D016 remains the
+landing/marketing visual direction.
+
+The reference is a structure/material contract, not an asset or data source. Keyfolio
+must preserve its own data-state honesty, environment labels, entitlement gates,
+account-following and exact-money rules. No real balances or live requests may be
+invented to resemble the screenshot.
