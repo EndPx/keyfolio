@@ -3,13 +3,13 @@ import { mkdir } from 'node:fs/promises';
 const out = 'docs/evidence/KF-08';
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' });
-for (const [name, width, height, reduced] of [['landing-1440',1440,900,false],['landing-390',390,844,false],['landing-390-reduced',390,844,true]]) {
-  const page = await browser.newPage({ viewport: { width, height }, reducedMotion: reduced ? 'reduce' : 'no-preference' });
+for (const [name, width, height] of [['web-root-1440',1440,900],['web-root-390',390,844]]) {
+  const page = await browser.newPage({ viewport: { width, height } });
   await page.goto('http://localhost:3000/', { waitUntil: 'networkidle' });
   await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-  const cta = await page.getByRole('button', { name: /Preview wallet|Preview connected/ }).count();
-  console.log(name, JSON.stringify({ overflow, cta }));
+  const marketplace = await page.getByRole('heading', { name: 'Marketplace' }).count();
+  console.log(name, JSON.stringify({ overflow, marketplace }));
   await page.close();
 }
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });

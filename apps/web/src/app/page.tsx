@@ -1,8 +1,5 @@
-import { getWebConfig } from '../config';
-import { LandingClient } from '../components/LandingClient';
+import MarketplacePage from './marketplace/page';
 
-export default function LandingPage() {
-  const cfg = getWebConfig();
-  const mode = cfg.ok ? cfg.mode : 'LIVE';
-  return <LandingClient mode={mode} configError={cfg.ok ? null : cfg.error} />;
+export default function DashboardHomePage() {
+  return <MarketplacePage />;
 }
