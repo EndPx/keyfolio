@@ -51,3 +51,6 @@ No live Confidential Intents ingestion/performance, complete wallet signing, pri
 5. Assisted-copy/recovery pipeline and final integration/release proof; advance dependency-ready local tasks automatically, retain live gates as BLOCKED_EXTERNAL rather than claiming full completion.
 
 Internal target2026-11-14 23:59 WIB. Schedule is at risk: full foundation/API/auth integration and actual source permissions remain incomplete with five days left. No scope/tests silently removed; report exact blocked scope if complete end-to-end evidence cannot be achieved. Worker done is IMPLEMENTED, coordinator acceptance requires review.
+
+
+Terra browser smoke accepted PASS_LOCAL read-only: real Chrome at1440/390 executed checkout/keys/studio, bounded RPC timeout error/retry, no mobile overflow, no signing. Evidence:[browser-smoke-acceptance](evidence/KF-08/browser-smoke-acceptance.md). Wallet signing/purchase/private entitlement remain NOT_RUN; FT/G02 and source/G01 remain blockers.

@@ -87,8 +87,15 @@ export function CheckoutTestnet({
 
   const load = useCallback(async () => {
     setPreflight({ phase: 'loading' });
+    const timeout = new Promise<never>((_, reject) => {
+      const timer = setTimeout(() => reject(new Error('NEAR testnet preflight timed out; retry when RPC is available.')), 8_000);
+      timer.unref?.();
+    });
     try {
-      const result = await runCheckoutPreflight({ rpcUrl, accessContract }, traderId, accountId ?? null);
+      const result = await Promise.race([
+        runCheckoutPreflight({ rpcUrl, accessContract }, traderId, accountId ?? null),
+        timeout,
+      ]);
       setPreflight(result);
     } catch (err) {
       setPreflight({ phase: 'error', fetchedAtMs: Date.now(), message: String((err as Error).message ?? err).slice(0, 240) });
