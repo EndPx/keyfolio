@@ -19,7 +19,12 @@ for (const [name, width, height, reduced] of [
     appShell: Boolean(document.querySelector('.sidebar, .banner')),
   }));
   const cta = await page.getByRole('button', { name: /Open the demo|Demo opened|Wallet unavailable|Connect NEAR wallet/ }).count();
-  const scenario = await page.getByText('Choose trader').count();
+  const scenario = await page.locator('.hero-scenario span').count();
+  const maxScroll = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  for (const fraction of [0, 0.35, 0.7, 1]) {
+    await page.evaluate((value) => window.scrollTo({ top: value, behavior: 'auto' }), Math.round(maxScroll * fraction));
+    await page.waitForTimeout(180);
+  }
   await page.screenshot({ path: `${out}/${name}.png`, fullPage: true });
   console.log(name, JSON.stringify({ ...result, cta, scenario, reduced }));
   await page.close();

@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const baloo = Baloo_2({ subsets: ['latin'], weight: ['800'], variable: '--font-baloo' });
 
 export const metadata: Metadata = {
-  title: 'Keyfolio — Account-following with proof',
+  title: 'Keyfolio - Account-following with proof',
   description: 'Compare tracked trading coverage, buy access, and follow with clear permission boundaries.',
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1 };

@@ -4,11 +4,11 @@ import { readFile } from 'node:fs/promises';
 import { getLandingWalletState } from '../src/components/landingContract';
 
 test('landing wallet CTA is explicit by mode and fail-closed for LIVE', () => {
-  assert.equal(getLandingWalletState('FIXTURE').label, 'Preview wallet');
-  assert.match(getLandingWalletState('FIXTURE').message, /simulated state/);
+  assert.equal(getLandingWalletState('FIXTURE').label, 'Open the demo');
+  assert.match(getLandingWalletState('FIXTURE').message, /simulated/);
   assert.equal(getLandingWalletState('TESTNET').label, 'Connect NEAR wallet');
   assert.equal(getLandingWalletState('LIVE').canAct, false);
-  assert.match(getLandingWalletState('LIVE').message, /fail-closed/);
+  assert.match(getLandingWalletState('LIVE').message, /unavailable|production gates/);
 });
 
 test('landing owns its marketing route and does not render the app shell', async () => {
