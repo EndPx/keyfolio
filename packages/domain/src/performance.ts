@@ -38,6 +38,11 @@ export function formatScaledUsd(scaled: bigint): string {
   return frac.length > 0 ? `${intPart}.${frac}` : intPart.toString();
 }
 
+export function formatSignedScaledUsd(scaled: bigint): string {
+  if (scaled < 0n) return `-${formatScaledUsd(-scaled)}`;
+  return formatScaledUsd(scaled);
+}
+
 /** Exact rational: den > 0, always reduced. */
 export interface Ratio {
   num: bigint;
@@ -95,6 +100,27 @@ export function ratioToPercentString(r: Ratio, fractionDigits: number): string {
   const intPart = digits.slice(0, -fractionDigits);
   const fracPart = digits.slice(-fractionDigits);
   return `${sign}${intPart}.${fracPart}`;
+}
+
+/** Round a ratio (where 1.0 is flat) to signed basis points exactly. */
+export function ratioMinusOneToBasisPoints(r: Ratio): string {
+  const delta = ratioMinusOne(r);
+  const numerator = delta.num * 10_000n;
+  const negative = numerator < 0n;
+  const abs = negative ? -numerator : numerator;
+  let rounded = abs / delta.den;
+  const remainder = abs % delta.den;
+  if (remainder * 2n > delta.den || (remainder * 2n === delta.den && rounded % 2n === 1n)) rounded += 1n;
+  return `${negative && rounded !== 0n ? '-' : ''}${rounded}`;
+}
+
+/** Round a nonnegative drawdown ratio to basis points exactly. */
+export function ratioToBasisPoints(r: Ratio): string {
+  const numerator = r.num * 10_000n;
+  let rounded = numerator / r.den;
+  const remainder = numerator % r.den;
+  if (remainder * 2n > r.den || (remainder * 2n === r.den && rounded % 2n === 1n)) rounded += 1n;
+  return rounded.toString();
 }
 
 // ---------------------------------------------------------------------------

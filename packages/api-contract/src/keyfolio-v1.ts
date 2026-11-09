@@ -12,7 +12,7 @@ export interface Page<T> {
 }
 
 export interface PublicTrader { id: string; display_name: string; handle: string; network: 'mainnet' | 'testnet'; }
-export interface PublicPerformance { trader_id: string; period: { start: string; end: string }; pnl_atomic: AtomicAmount | null; return_bps: string | null; drawdown_bps: string | null; coverage: string; }
+export interface PublicPerformance { trader_id: string; period: { start: string; end: string }; pnl_atomic: AtomicAmount | null; pnl_usd: string | null; return_bps: string | null; drawdown_bps: string | null; coverage: string; }
 export interface AuthChallenge { challenge_id: string; nonce: string; domain: string; network: 'mainnet' | 'testnet'; account: string; intent: 'keyfolio_login'; issued_at: string; expires_at: string; }
 export interface AuthSession { session_expires_at: string; account: string; network: 'mainnet' | 'testnet'; }
 export interface Connection { id: string; network: 'mainnet' | 'testnet'; account: string; status: 'pending' | 'connected' | 'reauth_required' | 'disconnected'; source_time: string | null; provenance: string; }
