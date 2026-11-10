@@ -1,33 +1,10 @@
 import { getWebConfig } from '../../config';
-import { ActivityClient } from './ActivityClient';
+import { FixtureTag, ModePanel, ScreenHeader, WalletState } from '../../components/AppScreen';
 
-/**
- * Activity (KF-08b.3): purchase events from the contract (real); copy/refund
- * events require the backend ledger (KF-03 wiring) - honest states only.
- */
 export default function ActivityPage() {
   const cfg = getWebConfig();
-  return (
-    <section aria-labelledby="page-title">
-      <h1 id="page-title" className="page-title">Activity</h1>
-      {cfg.ok && cfg.mode === 'TESTNET' ? (
-        <ActivityClient rpcUrl="https://rpc.testnet.near.org" accessContract={process.env.NEXT_PUBLIC_ACCESS_CONTRACT_ID ?? 'keyfolio-access.testnet'} />
-      ) : cfg.ok && cfg.mode === 'FIXTURE' ? (
-        <div className="panel">
-          <p className="terms-text">
-            Demo mode: purchase history reads the testnet contract in TESTNET mode. Copy/refund
-            events additionally require the backend ledger (KF-03 wiring).
-          </p>
-        </div>
-      ) : (
-        <div className="panel note-error" role="status">
-          <p className="terms-text">
-            {cfg.ok
-              ? `${cfg.mode} mode: activity reads are wired for testnet only.`
-              : `Configuration error: ${cfg.error}`}
-          </p>
-        </div>
-      )}
-    </section>
-  );
+  const mode = cfg.ok ? cfg.mode : 'LIVE';
+  return <section aria-labelledby="page-title"><ScreenHeader eyebrow="Audit trail" title="Activity" description="See contract events and account-following milestones with their source and status." action={<button className="btn btn-secondary" type="button">Refresh</button>} />
+    {!cfg.ok ? <div className="panel mode-panel mode-blocked" role="status"><h2 className="panel-title">Configuration required</h2><p className="terms-text">{cfg.error}</p></div> : <ModePanel mode={mode} fixture={<div className="screen-stack"><FixtureTag /><section className="panel"><div className="panel-heading"><div><p className="eyebrow">Recent events</p><h2 className="panel-title">Your Keyfolio timeline</h2></div><span className="badge badge-ok">Illustrative</span></div><div className="timeline"><div className="timeline-item"><span className="timeline-dot dot-green" /><div><strong>Access key activated</strong><p>Carla Â· 07 Nov 2026 Â· finalized contract event</p></div><span className="badge badge-ok">Confirmed</span></div><div className="timeline-item"><span className="timeline-dot dot-blue" /><div><strong>Private view opened</strong><p>Carla Â· 07 Nov 2026 Â· entitlement read</p></div><span className="badge badge-muted">Read</span></div><div className="timeline-item"><span className="timeline-dot dot-amber" /><div><strong>Copy window closed</strong><p>DeltaOne Â· 06 Nov 2026 Â· coverage incomplete</p></div><span className="badge badge-warn">Blocked</span></div></div></section><div className="activity-foot"><p>Contract events are authoritative for ownership and purchase state. Provider observations remain projections until finalized.</p></div></div>} testnet={<div className="screen-stack"><div className="panel mode-panel"><p className="eyebrow">TESTNET Â· finalized reads</p><h2 className="panel-title">Activity is wallet-scoped</h2><p className="terms-text">No fixture events are shown. Purchase events can be read after the wallet connects; copy and refund history requires the backend ledger.</p></div><WalletState copy="Connect to view your activity" detail="No transaction is submitted by this screen." /></div>} />}
+  </section>;
 }

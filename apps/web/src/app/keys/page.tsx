@@ -1,33 +1,10 @@
 import { getWebConfig } from '../../config';
-import { KeysClient } from './KeysClient';
+import { FixtureTag, ModePanel, ScreenHeader, WalletState } from '../../components/AppScreen';
 
-/**
- * My Keys (KF-08b.3): real enumeration + license views for the signed
- * wallet in TESTNET; a labeled demo panel in FIXTURE; not-wired in LIVE.
- */
 export default function KeysPage() {
   const cfg = getWebConfig();
-  return (
-    <section aria-labelledby="page-title">
-      <h1 id="page-title" className="page-title">My Keys</h1>
-      {cfg.ok && cfg.mode === 'TESTNET' ? (
-        <KeysClient rpcUrl="https://rpc.testnet.near.org" accessContract={process.env.NEXT_PUBLIC_ACCESS_CONTRACT_ID ?? 'keyfolio-access.testnet'} />
-      ) : cfg.ok && cfg.mode === 'FIXTURE' ? (
-        <div className="panel">
-          <p className="terms-text">
-            Demo mode: license listing requires a connected NEAR testnet wallet. The wallet flow
-            lives in TESTNET mode; nothing here is real in FIXTURE.
-          </p>
-        </div>
-      ) : (
-        <div className="panel note-error" role="status">
-          <p className="terms-text">
-            {cfg.ok
-              ? `${cfg.mode} mode: license listing is wired for testnet only.`
-              : `Configuration error: ${cfg.error}`}
-          </p>
-        </div>
-      )}
-    </section>
-  );
+  const mode = cfg.ok ? cfg.mode : 'LIVE';
+  return <section aria-labelledby="page-title"><ScreenHeader eyebrow="Access portfolio" title="My keys" description="Review the access licenses tied to your own wallet and their current rights." action={<a className="btn btn-primary" href="/marketplace">Browse traders</a>} />
+    {!cfg.ok ? <div className="panel mode-panel mode-blocked" role="status"><h2 className="panel-title">Configuration required</h2><p className="terms-text">{cfg.error}</p></div> : <ModePanel mode={mode} fixture={<div className="screen-stack"><FixtureTag /><div className="key-summary"><div><p className="eyebrow">Active licenses</p><strong className="display-number">2</strong><p className="meta-line">Illustrative access passes held by this demo profile</p></div><div className="summary-side"><span className="badge badge-ok">2 active</span><span className="meta-line">Next expiry Â· 30 Nov 2026</span></div></div><div className="key-list"><article className="key-row"><div className="key-icon">K</div><div className="key-main"><div className="row-title"><strong>Carla Â· Momentum on NEAR majors</strong><span className="badge badge-ok">Active</span></div><p className="meta-line">Owner Â· demo-wallet.near Â· expires 30 Nov 2026</p><p className="meta-line">Rights Â· private account Â· API read Â· assisted copy when eligible</p></div><a className="btn btn-secondary" href="/private">Open account</a></article><article className="key-row"><div className="key-icon key-icon-blue">D</div><div className="key-main"><div className="row-title"><strong>DeltaOne Â· Market-neutral basis</strong><span className="badge badge-warn">Partial</span></div><p className="meta-line">Owner Â· demo-wallet.near Â· expires 12 Dec 2026</p><p className="meta-line">Rights Â· private account read Â· copy disabled while coverage is partial</p></div><span className="btn btn-disabled">Copy unavailable</span></article></div></div>} testnet={<div className="screen-stack"><div className="panel mode-panel"><p className="eyebrow">TESTNET Â· {cfg.config.network}</p><h2 className="panel-title">Your licenses stay wallet-bound</h2><p className="terms-text">Only finalized contract ownership can populate this list. No fixture keys are shown in TESTNET mode.</p></div><WalletState copy="Connect to view your keys" detail="The contract ownership check runs after you connect." /></div>} />}
+  </section>;
 }

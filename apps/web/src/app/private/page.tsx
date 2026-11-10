@@ -1,27 +1,10 @@
-/**
- * Private Account (KF-08b.3): entitlement-gated account data. The ingestion
- * backend (KF-01 provider access, KF-03 ingestion loop) is not wired, so the
- * honest state is an explicit not-connected panel — never fake trades.
- */
+import { getWebConfig } from '../../config';
+import { FixtureTag, ModePanel, ScreenHeader, WalletState } from '../../components/AppScreen';
 
 export default function PrivateAccountPage() {
-  return (
-    <section aria-labelledby="page-title">
-      <h1 id="page-title" className="page-title">Private Account</h1>
-      <div className="panel">
-        <h2 className="panel-title">Not connected</h2>
-        <p className="terms-text">
-          This screen shows the traded account&apos;s activity, balances and positions behind the
-          NFT entitlement check. It requires the ingestion backend (provider access KF-01 and the
-          ingestion loop KF-03), which is not wired into this prototype milestone — fixture data is
-          deliberately not shown here.
-        </p>
-        <p className="meta-line">
-          What exists today: the access contract on testnet (purchase/withdraw/refund flows) and the
-          reconciliation rules tested in the workspace. This screen lights up when the ingestion
-          backend lands.
-        </p>
-      </div>
-    </section>
-  );
+  const cfg = getWebConfig();
+  const mode = cfg.ok ? cfg.mode : 'LIVE';
+  return <section aria-labelledby="page-title"><ScreenHeader eyebrow="Entitled account view" title="Private account" description="A quiet view of the trader activity covered by an active access key." action={<a className="btn btn-secondary" href="/keys">View my keys</a>} />
+    {!cfg.ok ? <div className="panel mode-panel mode-blocked" role="status"><h2 className="panel-title">Configuration required</h2><p className="terms-text">{cfg.error}</p></div> : <ModePanel mode={mode} fixture={<div className="screen-stack"><FixtureTag /><div className="balance-panel"><div><p className="eyebrow">Tracked account Â· Carla</p><p className="balance-label">Portfolio value</p><strong className="balance-number">$12,480.20</strong><p className="meta-line">As of 07 Nov 2026 Â· complete coverage</p></div><span className="balance-change">+8.24% <small>30D TWR</small></span></div><div className="private-grid"><section className="panel"><div className="panel-heading"><div><p className="eyebrow">Account activity</p><h2 className="panel-title">Recent movements</h2></div><span className="badge badge-ok">Up to date</span></div><div className="table-list"><div className="table-row"><div><strong>NEAR Â· swap in</strong><span>07 Nov Â· confirmed</span></div><b className="positive">+420.00</b></div><div className="table-row"><div><strong>USDC Â· swap out</strong><span>06 Nov Â· confirmed</span></div><b>-180.00</b></div><div className="table-row"><div><strong>stNEAR Â· position</strong><span>04 Nov Â· tracked</span></div><b>68.20%</b></div></div></section><aside className="panel privacy-panel"><p className="eyebrow">Access boundary</p><h2 className="panel-title">Keyfolio read access</h2><p className="terms-text">This sample illustrates the entitled view. Real balances and positions appear only after wallet ownership, key expiry, source consent and freshness checks pass.</p><a className="btn btn-primary" href="/api-access">Manage API access</a></aside></div></div>} testnet={<div className="screen-stack"><div className="panel mode-panel"><p className="eyebrow">Private by default</p><h2 className="panel-title">No account data before entitlement</h2><p className="terms-text">TESTNET does not show balances, positions or activity until the connected wallet is checked against a finalized access key and the source projection is fresh.</p></div><WalletState copy="Connect to check private access" detail="No private data is loaded before ownership and entitlement checks complete." /></div>} />}
+  </section>;
 }

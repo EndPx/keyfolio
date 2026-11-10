@@ -1,0 +1,92 @@
+[
+  {
+    "mode": "TESTNET",
+    "width": 1440,
+    "route": "/keys",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 1440,
+    "route": "/private",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 1440,
+    "route": "/api-access",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 1440,
+    "route": "/activity",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 1440,
+    "route": "/studio",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 390,
+    "route": "/keys",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 390,
+    "route": "/private",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 390,
+    "route": "/api-access",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 390,
+    "route": "/activity",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  },
+  {
+    "mode": "TESTNET",
+    "width": 390,
+    "route": "/studio",
+    "overflow": false,
+    "hasFixture": false,
+    "hasSampleNumber": false,
+    "connectPrompt": true
+  }
+]

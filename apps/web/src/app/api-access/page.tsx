@@ -1,26 +1,10 @@
-/**
- * API Access (KF-08b.3): credential create/revoke is a backend service
- * (session auth + keyed hashing, KF-06 server wiring) that is not part of
- * this prototype milestone — the honest state is an explicit explanation.
- */
+import { getWebConfig } from '../../config';
+import { FixtureTag, ModePanel, ScreenHeader, WalletState } from '../../components/AppScreen';
 
 export default function ApiAccessPage() {
-  return (
-    <section aria-labelledby="page-title">
-      <h1 id="page-title" className="page-title">API Access</h1>
-      <div className="panel">
-        <h2 className="panel-title">Credential service not connected</h2>
-        <p className="terms-text">
-          API credentials are created and revoked by the backend (session auth, keyed hashing,
-          per-license quota 60 req/min · burst 10 · max 5 credentials). That service is not wired
-          into this prototype milestone — no demo credentials are shown, because secrets shown in a
-          demo would be fake either way.
-        </p>
-        <p className="meta-line">
-          Design reference: the approved mockup shows the full credential table, create-once secret
-          flow and a curl example with a placeholder key.
-        </p>
-      </div>
-    </section>
-  );
+  const cfg = getWebConfig();
+  const mode = cfg.ok ? cfg.mode : 'LIVE';
+  return <section aria-labelledby="page-title"><ScreenHeader eyebrow="Developer access" title="API access" description="Create and revoke scoped credentials for an entitled private account." action={<a className="btn btn-secondary" href="/private">Back to account</a>} />
+    {!cfg.ok ? <div className="panel mode-panel mode-blocked" role="status"><h2 className="panel-title">Configuration required</h2><p className="terms-text">{cfg.error}</p></div> : <ModePanel mode={mode} fixture={<div className="screen-stack"><FixtureTag /><section className="panel api-hero"><div><p className="eyebrow">Credential inventory</p><h2 className="panel-title">Two scoped credentials</h2><p className="terms-text">Secrets are shown once at creation. This fixture demonstrates the review state without exposing a usable secret.</p></div><button type="button" className="btn btn-primary">Create credential</button></section><section className="panel"><div className="panel-heading"><div><p className="eyebrow">Active credentials</p><h2 className="panel-title">Access keys</h2></div><span className="badge badge-muted">60 req/min Â· burst 10</span></div><div className="credential-row"><div><strong>Dashboard read</strong><span>Created 02 Nov 2026 Â· last used never</span></div><code>kf_demo_â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢</code><button className="btn btn-secondary" type="button">Revoke</button></div><div className="credential-row"><div><strong>Research export</strong><span>Created 28 Oct 2026 Â· last used 07 Nov 2026</span></div><code>kf_demo_â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢</code><button className="btn btn-secondary" type="button">Revoke</button></div></section><section className="panel code-panel"><div><p className="eyebrow">Example request</p><h2 className="panel-title">Read private activity</h2></div><pre><code>{'curl https://api.keyfolio.local/v1/me/activity \\n  -H "Authorization: Bearer kf_demo_â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"'}</code></pre></section></div>} testnet={<div className="screen-stack"><div className="panel mode-panel"><p className="eyebrow">TESTNET Â· scoped credentials</p><h2 className="panel-title">Credential service is not connected</h2><p className="terms-text">API secrets require an authenticated session, an active key and server-side quota checks. No fake credentials or private responses are shown here.</p></div><WalletState copy="Connect to check API eligibility" detail="Connecting a wallet does not create a credential or sign a transaction." /></div>} />}
+  </section>;
 }

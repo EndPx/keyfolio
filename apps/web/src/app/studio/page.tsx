@@ -1,34 +1,10 @@
 import { getWebConfig } from '../../config';
-import { StudioClient } from './StudioClient';
+import { FixtureTag, ModePanel, ScreenHeader, WalletState } from '../../components/AppScreen';
 
-/**
- * Trader Studio (KF-08b.3): seller console over REAL contract state in
- * TESTNET. Performance metrics are NEVER seller-editable (KF-D015).
- */
 export default function StudioPage() {
   const cfg = getWebConfig();
-  return (
-    <section aria-labelledby="page-title">
-      <h1 id="page-title" className="page-title">Trader Studio</h1>
-      <p className="sample-note">Seller console · performance metrics are computed by Keyfolio and cannot be edited here</p>
-      {cfg.ok && cfg.mode === 'TESTNET' ? (
-        <StudioClient rpcUrl="https://rpc.testnet.near.org" accessContract={process.env.NEXT_PUBLIC_ACCESS_CONTRACT_ID ?? 'keyfolio-access.testnet'} />
-      ) : cfg.ok && cfg.mode === 'FIXTURE' ? (
-        <div className="panel">
-          <p className="terms-text">
-            Demo mode: the seller console (earnings withdrawal, listing state) runs against the
-            testnet contract in TESTNET mode. Nothing here is real in FIXTURE.
-          </p>
-        </div>
-      ) : (
-        <div className="panel note-error" role="status">
-          <p className="terms-text">
-            {cfg.ok
-              ? `${cfg.mode} mode: the seller console is wired for testnet only.`
-              : `Configuration error: ${cfg.error}`}
-          </p>
-        </div>
-      )}
-    </section>
-  );
+  const mode = cfg.ok ? cfg.mode : 'LIVE';
+  return <section aria-labelledby="page-title"><ScreenHeader eyebrow="Trader workspace" title="Trader studio" description="Manage listing visibility and review computed performance without editing the record." action={<a className="btn btn-secondary" href="/marketplace">View marketplace</a>} />
+    {!cfg.ok ? <div className="panel mode-panel mode-blocked" role="status"><h2 className="panel-title">Configuration required</h2><p className="terms-text">{cfg.error}</p></div> : <ModePanel mode={mode} fixture={<div className="screen-stack"><FixtureTag /><div className="studio-grid"><section className="panel studio-status"><div><p className="eyebrow">Listing status</p><h2 className="panel-title">Active and visible</h2><p className="terms-text">Carla Â· momentum on NEAR majors</p></div><span className="badge badge-ok">Sales on</span></section><section className="panel"><p className="eyebrow">Computed performance</p><div className="studio-metrics"><div><span>30D TWR</span><strong className="positive">+8.24%</strong></div><div><span>Coverage</span><strong>Complete</strong></div><div><span>Access price</span><strong>25 KF-TEST</strong></div></div><p className="meta-line">Metrics are produced by Keyfolio from account-following observations. Seller editing is disabled.</p></section></div><section className="panel earnings-panel"><div><p className="eyebrow">Earnings</p><h2 className="panel-title">Vested balance</h2><strong className="display-number">18.40 KF-TEST</strong><p className="meta-line">Illustrative claimable amount Â· withdraw action remains disabled in this visual slice</p></div><button className="btn btn-disabled" type="button" disabled>Withdraw unavailable</button></section></div>} testnet={<div className="screen-stack"><div className="panel mode-panel"><p className="eyebrow">TESTNET Â· seller controls</p><h2 className="panel-title">Studio is wallet-scoped</h2><p className="terms-text">The page will read finalized seller state after connection. No fixture metrics are shown and no withdrawal transaction is initiated by this screen.</p></div><WalletState copy="Connect to view trader studio" detail="A connected wallet is required to check seller enrollment." /></div>} />}
+  </section>;
 }

@@ -1,0 +1,92 @@
+[
+  {
+    "mode": "FIXTURE",
+    "width": 1440,
+    "route": "/keys",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 1440,
+    "route": "/private",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": true,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 1440,
+    "route": "/api-access",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 1440,
+    "route": "/activity",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 1440,
+    "route": "/studio",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 390,
+    "route": "/keys",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 390,
+    "route": "/private",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": true,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 390,
+    "route": "/api-access",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 390,
+    "route": "/activity",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  },
+  {
+    "mode": "FIXTURE",
+    "width": 390,
+    "route": "/studio",
+    "overflow": false,
+    "hasFixture": true,
+    "hasSampleNumber": false,
+    "hasTitle": true
+  }
+]
