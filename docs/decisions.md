@@ -185,3 +185,19 @@ The reference is a structure/material contract, not an asset or data source. Key
 must preserve its own data-state honesty, environment labels, entitlement gates,
 account-following and exact-money rules. No real balances or live requests may be
 invented to resemble the screenshot.
+
+## KF-D020 — Mainnet-directed Confidential Intents pilot
+
+Date: 2026-11-10. Owner: user. Status: binding execution direction; not a transaction or deployment authorization.
+
+Keyfolio is now directed toward a controlled mainnet pilot because the target product claim depends on production Confidential Intents connected to NEAR's private execution environment. Testnet and Sandbox remain valid for contract, wallet, UI, entitlement, recovery and fail-closed testing, but they cannot prove live Confidential Intents account history or confidential trade execution.
+
+The mainnet-directed order is:
+
+1. obtain and verify authorized Confidential Intents provider access, including account-wide history scope, external-interface coverage, source execution timestamps, subscriber display/reuse terms and retention;
+2. select a dedicated trader and follower account path without sharing private keys or tokens in chat;
+3. complete the production-readiness review for the access contract, FT/payment route, NFT entitlement, expiry/revocation, refunds, monitoring and recovery;
+4. run a bounded pilot with explicit user-selected accounts, budget and spending limits;
+5. only then claim live confidential copy-trading.
+
+This decision does not authorize mainnet deployment, real-asset transactions, paid services, wallet-key changes, or provider communication. Those actions require their existing explicit approvals and concrete account/signing route. Until the gates pass, all live claims remain `BLOCKED_EXTERNAL` or `NOT_RUN`, and testnet/local results remain labeled separately.
