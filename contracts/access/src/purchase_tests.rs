@@ -288,22 +288,24 @@ fn purchase_without_prepaid_storage_is_refunded() {
 fn storage_deposit_and_withdraw_account_correctly() {
     let mut c = fresh_contract();
     publish_default_plan(&mut c);
-    prep_storage(&mut c, BUYER, 2); // 2 NEAR prepaid
-    assert_eq!(c.storage_balance_of(accounts(BUYER)), U128(2 * NEAR));
-
-    prep_storage(&mut c, BUYER, 1); // top up
-    assert_eq!(c.storage_balance_of(accounts(BUYER)), U128(3 * NEAR));
-
+    set_ctx_with_deposit(BUYER, T0_NS, 2 * NEAR);
+    let before = env::storage_usage();
+    c.storage_deposit(None);
+    let registration_cost = u128::from(env::storage_usage() - before) * env::storage_byte_cost().as_yoctonear();
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, 2 * NEAR - registration_cost);
+    prep_storage(&mut c, BUYER, 1);
     set_ctx(FT, T0_NS);
-    c.ft_on_transfer(accounts(BUYER), U128(PRICE), purchase_msg(TRADER, 1, "ord-10"));
-    let after_mint = c.storage_balance_of(accounts(BUYER)).0;
-    let min = c.storage_minimum_balance();
-    assert_eq!(after_mint, 3 * NEAR - min, "exactly one slot deducted");
-
-    // Withdraw only the free part; the slot backing the token stays.
-    set_ctx_with_deposit(BUYER, T0_NS, 1); // 1 yocto for the payable method
-    let remaining = c.storage_withdraw(None);
-    assert_eq!(remaining, U128(min), "owned slot remains reserved");
+    let before_mint = env::storage_usage();
+    let credit_before = c.storage_balance_of(accounts(BUYER)).0;
+    assert_eq!(c.ft_on_transfer(accounts(BUYER), U128(PRICE), purchase_msg(TRADER, 1, "ord-10")), U128(0));
+    let mint_cost = u128::from(env::storage_usage() - before_mint) * env::storage_byte_cost().as_yoctonear();
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, credit_before - mint_cost);
+    set_ctx_with_deposit(BUYER, T0_NS, 1);
+    assert_eq!(c.storage_withdraw(None), U128(0));
+    let e = c.storage_balances.get(&accounts(BUYER)).unwrap();
+    assert_eq!(e.pending, 3 * NEAR - registration_cost - mint_cost);
+    c.settle_native_withdrawal(accounts(BUYER), e.nonce, true);
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, 0);
 }
 
 #[test]
@@ -327,21 +329,73 @@ fn trader_indices_and_earnings_are_independent() {
 }
 
 #[test]
-fn transfer_releases_only_remaining_credit_not_consumed_mint_charge() {
+fn unused_credit_is_withdrawable_before_and_after_transfer() {
     use near_contract_standards::non_fungible_token::core::NonFungibleTokenCore;
     let mut c = fresh_contract();
     publish_default_plan(&mut c);
     prep_storage(&mut c, BUYER, 3);
     set_ctx(FT, T0_NS);
     assert_eq!(c.ft_on_transfer(accounts(BUYER), U128(PRICE), purchase_msg(TRADER, 1, "backing")), U128(0));
-    let minimum = c.storage_minimum_balance();
-    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, 3 * NEAR - minimum);
+    let credit = c.storage_balance_of(accounts(BUYER)).0;
     set_ctx_with_deposit(BUYER, T0_NS, 1);
-    c.storage_withdraw(None);
-    let first_withdrawal = 3 * NEAR - 2 * minimum;
-    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, minimum);
+    assert_eq!(c.storage_withdraw(Some(U128(credit / 2))), U128(credit - credit / 2));
+    let e = c.storage_balances.get(&accounts(BUYER)).unwrap();
+    c.settle_native_withdrawal(accounts(BUYER), e.nonce, true);
     c.nft_transfer(accounts(0), token_id_for(TRADER, "backing"), None, None);
-    c.storage_withdraw(None);
-    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, 0);
-    assert_eq!(3 * NEAR - first_withdrawal - minimum, minimum, "consumed mint charge remains");
+    assert_eq!(c.storage_withdraw(None), U128(0));
+    let e = c.storage_balances.get(&accounts(BUYER)).unwrap();
+    assert_eq!(e.pending, credit - credit / 2);
+}
+
+#[test]
+fn native_withdraw_failure_restores_once_and_rejects_wrong_deposit() {
+    use near_sdk::PromiseResult;
+    let mut c = fresh_contract();
+    prep_storage(&mut c, BUYER, 1);
+    let original = c.storage_balance_of(accounts(BUYER)).0;
+    for deposit in [0, 2] {
+        set_ctx_with_deposit(BUYER, T0_NS, deposit);
+        assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| c.storage_withdraw(Some(U128(123))))).is_err());
+    }
+    set_ctx_with_deposit(BUYER, T0_NS, 1);
+    assert_eq!(c.storage_withdraw(Some(U128(123))), U128(original - 123));
+    let e = c.storage_balances.get(&accounts(BUYER)).unwrap();
+    assert_eq!(e.available + e.pending, original);
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| c.storage_withdraw(None))).is_err());
+    let mut b = VMContextBuilder::new();
+    b.current_account_id(accounts(0)).predecessor_account_id(accounts(0));
+    testing_env!(b.build(), near_sdk::test_vm_config(), near_sdk::RuntimeFeesConfig::test(), Default::default(), vec![PromiseResult::Failed]);
+    c.storage_withdraw_callback(accounts(BUYER), e.nonce);
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, original);
+    assert_eq!(c.storage_balances.get(&accounts(BUYER)).unwrap().pending, 0);
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| c.storage_withdraw_callback(accounts(BUYER), e.nonce))).is_err());
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, original);
+}
+
+#[test]
+fn renewal_charges_exact_storage_growth() {
+    let mut c = fresh_contract();
+    publish_default_plan(&mut c);
+    prep_storage(&mut c, BUYER, 1);
+    set_ctx(FT, T0_NS);
+    assert_eq!(c.ft_on_transfer(accounts(BUYER), U128(PRICE), purchase_msg(TRADER, 1, "renew-cost")), U128(0));
+    let credit = c.storage_balance_of(accounts(BUYER)).0;
+    let before = env::storage_usage();
+    assert_eq!(c.ft_on_transfer(accounts(BUYER), U128(PRICE), renew_msg(&token_id_for(TRADER, "renew-cost"))), U128(0));
+    let bytes = env::storage_usage() - before;
+    assert!(bytes > 0);
+    assert_eq!(credit - c.storage_balance_of(accounts(BUYER)).0, u128::from(bytes) * env::storage_byte_cost().as_yoctonear());
+}
+
+#[test]
+fn purchase_id_bounds_fail_closed_before_mutation() {
+    let mut c = fresh_contract();
+    publish_default_plan(&mut c);
+    prep_storage(&mut c, BUYER, 1);
+    set_ctx(FT, T0_NS);
+    let before = env::storage_usage();
+    for id in ["".to_string(), "x".repeat(129), "bad|id".to_string()] {
+        assert_eq!(c.ft_on_transfer(accounts(BUYER), U128(PRICE), purchase_msg(TRADER, 1, &id)), U128(PRICE));
+        assert_eq!(env::storage_usage(), before);
+    }
 }

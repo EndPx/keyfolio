@@ -1,0 +1,21 @@
+{
+  "classification": "PASS_LOCAL_SANDBOX_BOUNDED_NATIVE_ACCOUNTING",
+  "mainnet_approval": false,
+  "artifact": { "bytes": 587925, "sha256": "b4d1db8885a09a0a16c17123ce60728c3cb567a0a0700cc0064fb04c1955ce8e", "final_reviewed": false },
+  "protocol_version": 88,
+  "input": { "identity_length": 64, "purchase_id_length": 128, "price_atomic": "101", "term_ms": 1000000, "native_deposit_yocto": "1000000000000000000000000", "ft_purchase_path_in_sizing": "DIRECT_RECEIVER", "actual_ft_resolver_tested_separately": true },
+  "storage_bytes": { "before_deploy": 182, "after_deploy": 588107, "after_new": 588740, "after_plan": 588992, "after_deposit": 589318, "after_mint": 594716, "after_renew": 595532 },
+  "native_ledger": { "registration_charge_yocto": "3260000000000000000000", "mint_charge_yocto": "53980000000000000000000", "renewal_charge_yocto": "8160000000000000000000", "available_after_deposit_yocto": "996740000000000000000000", "available_after_mint_yocto": "942760000000000000000000", "available_after_renew_yocto": "934600000000000000000000", "failed_native_payout_credit_restored_yocto": "934600000000000000000000", "successful_native_payouts_total_yocto": "934600000000000000000000" },
+  "rate_snapshot": { "network": "mainnet", "block_height": 224104440, "storage_yocto_per_byte": "10000000000000000000", "burn_price_yocto_per_gas": "100000000", "min_purchase_price_yocto_per_gas": "1000000000", "fresh_live_funding_check": false },
+  "coordinator_gas_observation": [
+    { "action": "deploy", "transaction": "4298357687075", "receipts": "38480055913700", "total_burnt": "42778413600775", "prepaid_call_tgas": null },
+    { "action": "new", "transaction": "308589416358", "receipts": "3238938992660", "total_burnt": "3547528409018", "prepaid_call_tgas": 100 },
+    { "action": "set_plan", "transaction": "314353750380", "receipts": "2088816264526", "total_burnt": "2403170014906", "prepaid_call_tgas": 100 },
+    { "action": "storage_deposit", "transaction": "309680746310", "receipts": "2325180894815", "total_burnt": "2634861641125", "prepaid_call_tgas": 100 },
+    { "action": "purchase_receiver", "transaction": "326846883710", "receipts": "4885419979337", "total_burnt": "5212266863047", "prepaid_call_tgas": 100 },
+    { "action": "renew_receiver", "transaction": "328038976585", "receipts": "3444950145712", "total_burnt": "3772989122297", "prepaid_call_tgas": 100 }
+  ],
+  "worker_deploy_observation_gas": "42555231038275",
+  "checks": { "host": "40/40 PASS_LOCAL", "legacy_sandbox": "3/3 PASS_LOCAL", "actual_ft_integration": "1/1 PASS_LOCAL", "sizing_and_native_recovery": "1/1 PASS_LOCAL", "tiny_registration_reverts_without_growth": true, "insufficient_mint_and_renewal_actual_ft_resolver_return_full_amount": true, "canonical_minimum_json_string": true, "no_public_transactions": true, "no_shared_funder_use": true, "no_showstake_access": true },
+  "limitations": ["storage transfer and pending NFT transfer reserve not closed", "bounded FT processing and callback allocation proof remain open", "full N01-N12 not accepted", "native callback non-execution is not proven recoverable; never restore blindly", "native payout failure is local artificial fault injection, not proof of public solvency", "same-artifact deploy receipt gas differed between runs; actual fees depend on receipt path", "source state layout requires a fresh isolated deployment or explicitly reviewed migration", "production FT and financial policy launch decisions remain open"]
+}

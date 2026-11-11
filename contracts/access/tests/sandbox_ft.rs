@@ -113,6 +113,24 @@ async fn ft_integration_happy_path_with_reconciliation() {
     let access_before = ft_bal(access.id().clone()).await;
     let owner_before = ft_bal(owner.id().clone()).await;
 
+    // Drain available native credit, then exercise failure after tentative writes
+    // through the real FT resolver. The receipt must roll back atomically.
+    let drain = buyer.call(access.id(), "storage_withdraw").args_json(serde_json::json!({"amount":null})).deposit(NearToken::from_yoctonear(1)).gas(near_workspaces::types::Gas::from_tgas(250)).transact().await.unwrap();
+    assert!(drain.failures().is_empty(), "{:?}", drain.failures());
+    let empty: String = access.view("storage_balance_of").args_json(serde_json::json!({"account_id":buyer.id()})).await.unwrap().json().unwrap();
+    assert_eq!(empty, "0");
+    let failed_msg = serde_json::json!({"action":"purchase","trader_id":owner.id(),"plan_version":1,"purchase_id":"unfunded"}).to_string();
+    let before_storage = access.view_account().await.unwrap().storage_usage;
+    let failed = buyer.call(ft.id(), "ft_transfer_call").args_json(serde_json::json!({"receiver_id":access.id(),"amount":"101","msg":failed_msg})).deposit(NearToken::from_yoctonear(1)).gas(near_workspaces::types::Gas::from_tgas(250)).transact().await.unwrap();
+    assert!(!failed.receipt_failures().is_empty(), "receiver receipt must fail after insufficient storage");
+    assert_eq!(failed.json::<String>().unwrap(), "0");
+    assert_eq!(ft_bal(buyer.id().clone()).await, buyer_before);
+    assert_eq!(ft_bal(access.id().clone()).await, access_before);
+    assert_eq!(access.view_account().await.unwrap().storage_usage, before_storage);
+    let nonexistent: Option<serde_json::Value> = access.view("get_license").args_json(serde_json::json!({"token_id": format!("kf-{}-{}-unfunded",owner.id(),buyer.id())})).await.unwrap().json().unwrap();
+    assert!(nonexistent.is_none());
+    buyer.call(access.id(), "storage_deposit").args_json(serde_json::json!({"account_id":null})).deposit(NearToken::from_near(1)).transact().await.unwrap().into_result().unwrap();
+
     // ---- purchase via REAL ft_transfer_call (resolver path) --------------
     async fn purchase(
         access: &near_workspaces::Contract,
@@ -162,6 +180,22 @@ async fn ft_integration_happy_path_with_reconciliation() {
     let tid1 = purchase(&access, &ft, &buyer, owner.id(), "ft-ord-1").await;
     assert_eq!(ft_bal(buyer.id().clone()).await, buyer_before - 101, "buyer delta -101");
     assert_eq!(ft_bal(access.id().clone()).await, access_before + 101, "access delta +101");
+
+    let drain = buyer.call(access.id(), "storage_withdraw").args_json(serde_json::json!({"amount":null})).deposit(NearToken::from_yoctonear(1)).gas(near_workspaces::types::Gas::from_tgas(250)).transact().await.unwrap();
+    assert!(drain.failures().is_empty(), "{:?}", drain.failures());
+    let before_storage = access.view_account().await.unwrap().storage_usage;
+    let before_buyer = ft_bal(buyer.id().clone()).await;
+    let before_access = ft_bal(access.id().clone()).await;
+    let msg = serde_json::json!({"action":"renew","token_id":tid1}).to_string();
+    let renewal = buyer.call(ft.id(), "ft_transfer_call").args_json(serde_json::json!({"receiver_id":access.id(),"amount":"101","msg":msg})).deposit(NearToken::from_yoctonear(1)).gas(near_workspaces::types::Gas::from_tgas(250)).transact().await.unwrap();
+    assert!(!renewal.receipt_failures().is_empty(), "renewal receipt must fail after insufficient storage");
+    assert_eq!(renewal.json::<String>().unwrap(), "0");
+    assert_eq!(ft_bal(buyer.id().clone()).await, before_buyer);
+    assert_eq!(ft_bal(access.id().clone()).await, before_access);
+    assert_eq!(access.view_account().await.unwrap().storage_usage, before_storage);
+    let tranches: serde_json::Value = access.view("get_token_tranches").args_json(serde_json::json!({"token_id":tid1})).await.unwrap().json().unwrap();
+    assert_eq!(tranches.as_array().unwrap().len(), 1);
+    buyer.call(access.id(), "storage_deposit").args_json(serde_json::json!({"account_id":null})).deposit(NearToken::from_near(1)).transact().await.unwrap().into_result().unwrap();
 
     // ---- full term passes; trader withdraws via the REAL FT (SUCCESS) ----
     // Sandbox block timing varies: advance in bursts until fully vested

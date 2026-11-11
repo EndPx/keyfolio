@@ -41,8 +41,8 @@ pub const ONE_YOCTO: NearToken = NearToken::from_yoctonear(1);
 
 /// Extra bytes this contract stores per mint beyond the NFT standard's
 /// per-token estimate (license record, tranche record, per-token tranche
-/// vector, purchase index). Verified against real usage in KF-05d evidence.
-pub const STORAGE_BUFFER_BYTES: u64 = 2048;
+/// vector, purchase index). This is a planning estimate, not the charge.
+pub const STORAGE_BUFFER_BYTES: u64 = 8192;
 
 #[derive(BorshStorageKey, BorshSerialize)]
 #[borsh(crate = "near_sdk::borsh")]
@@ -139,7 +139,7 @@ pub struct AccessContract {
     pub purchases: UnorderedMap<String, TokenId>,
     /// Prepaid native-NEAR storage (baseline 01 section 10: storage is
     /// registered separately from the FT price; never mixed with it).
-    pub storage_balances: UnorderedMap<AccountId, Balance>,
+    pub storage_balances: UnorderedMap<AccountId, NativeStorageAccount>,
     pub next_tranche_seq: u64,
     /// Tokens per trader for claim accounting (trader != NFT owner).
     pub trader_tokens: LookupMap<AccountId, Vector<TokenId>>,
@@ -151,6 +151,14 @@ pub struct AccessContract {
     /// 01 section 10).
     pub refund_locks: UnorderedMap<TokenId, ()>,
     pub next_payout_seq: u64,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Default)]
+#[borsh(crate = "near_sdk::borsh")]
+pub struct NativeStorageAccount {
+    pub available: Balance,
+    pub pending: Balance,
+    pub nonce: u64,
 }
 
 /// Funds reserved before an external FT transfer, with the exact tranche
@@ -309,26 +317,22 @@ impl AccessContract {
         if amount != plan.price {
             return refund; // exact-price model: never accept partial/overpay
         }
+        if purchase_id.is_empty() || purchase_id.len() > 128 || !purchase_id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_' || b == b'.') {
+            return refund;
+        }
         let pkey = Self::purchase_key(&trader_id, &buyer, &purchase_id);
         if self.purchases.get(&pkey).is_some() {
             return refund; // replayed purchase id
         }
 
         let now = Self::block_ms();
-        let end = now + plan.term_ms;
+        let end = now.checked_add(plan.term_ms).expect("expiry overflow");
         // Receipt identity spans trader, payer and purchase id: purchase ids
         // are unique per (payer, purchase_id), so two buyers reusing the same
         // id must still mint distinct tokens.
         let token_id: TokenId = format!("kf-{}-{}-{}", trader_id, buyer, purchase_id);
-        // Storage is prepaid (never taken from the FT amount): require one
-        // minimum slot, deduct it from the prepaid balance, and mint without
-        // attached-deposit accounting (refund_id None skips that path).
-        let min = self.storage_minimum_balance();
-        let prepaid = self.storage_balances.get(&buyer).unwrap_or(0);
-        if prepaid < min {
-            return refund;
-        }
-        self.storage_balances.insert(&buyer, &(prepaid - min));
+        if self.storage_balances.get(&buyer).is_none() { return refund; }
+        let storage_before = env::storage_usage();
 
         let token = self.tokens.internal_mint_with_refund(
             token_id.clone(),
@@ -352,7 +356,7 @@ impl AccessContract {
         require!(token.owner_id == buyer, "mint failed");
 
         let tranche_id = format!("tr-{}", self.next_tranche_seq);
-        self.next_tranche_seq += 1;
+        self.next_tranche_seq = self.next_tranche_seq.checked_add(1).expect("tranche sequence overflow");
         self.tranches.insert(
             &tranche_id,
             &Tranche {
@@ -388,6 +392,8 @@ impl AccessContract {
             .unwrap_or_else(|| Vector::new([b"tk".as_slice(), trader_id.as_bytes()].concat()));
         tlist.push(&token_id.clone());
         self.trader_tokens.insert(&trader_id, &tlist);
+
+        self.charge_storage_growth(&buyer, storage_before);
 
         near_contract_standards::non_fungible_token::events::NftMint {
             owner_id: &buyer,
@@ -431,10 +437,12 @@ impl AccessContract {
         let now = Self::block_ms();
         // D07: new expiry = max(now, old expiry) + term; purchased terms stay intact.
         let start = std::cmp::max(now, license.expires_at_ms);
-        let end = start + plan.term_ms;
+        let end = start.checked_add(plan.term_ms).expect("expiry overflow");
+        if self.storage_balances.get(&payer).is_none() { return refund; }
+        let storage_before = env::storage_usage();
 
         let tranche_id = format!("tr-{}", self.next_tranche_seq);
-        self.next_tranche_seq += 1;
+        self.next_tranche_seq = self.next_tranche_seq.checked_add(1).expect("tranche sequence overflow");
         self.tranches.insert(
             &tranche_id,
             &Tranche {
@@ -455,6 +463,7 @@ impl AccessContract {
 
         license.expires_at_ms = end;
         self.licenses.insert(&token_id, &license);
+        self.charge_storage_growth(&payer, storage_before);
 
         U128(0)
     }
@@ -463,53 +472,78 @@ impl AccessContract {
     // Storage registration (prepaid native NEAR; separate from FT price)
     // ------------------------------------------------------------------
 
-    /// Minimum prepaid NEAR for one mint slot: the NFT standard's measured
-    /// per-token cost plus a fixed buffer for this contract's license,
-    /// tranche and index records. The buffer is verified against real usage
-    /// in the KF-05d sandbox evidence.
-    pub fn storage_minimum_balance(&self) -> Balance {
-        let byte_cost = env::storage_byte_cost().as_yoctonear();
-        let per_token = u128::from(self.tokens.extra_storage_in_bytes_per_token) * byte_cost;
-        per_token + Balance::from(STORAGE_BUFFER_BYTES) * byte_cost
+    /// Legacy planning estimate only; exact charge depends on actual records.
+    pub fn storage_minimum_balance(&self) -> U128 {
+        let bytes = u128::from(self.tokens.extra_storage_in_bytes_per_token)
+            .checked_add(u128::from(STORAGE_BUFFER_BYTES)).expect("storage estimate overflow");
+        U128(bytes.checked_mul(env::storage_byte_cost().as_yoctonear()).expect("storage estimate overflow"))
+    }
+
+    fn storage_cost(bytes: u64) -> Balance {
+        u128::from(bytes).checked_mul(env::storage_byte_cost().as_yoctonear()).expect("storage cost overflow")
+    }
+
+    fn charge_storage_growth(&mut self, account: &AccountId, before: u64) {
+        let bytes = env::storage_usage().checked_sub(before).expect("unexpected storage shrink");
+        let charge = Self::storage_cost(bytes);
+        let mut entry = self.storage_balances.get(account).expect("storage registration required");
+        entry.available = entry.available.checked_sub(charge).expect("insufficient prepaid storage");
+        self.storage_balances.insert(account, &entry);
     }
 
     #[payable]
     pub fn storage_deposit(&mut self, account_id: Option<AccountId>) -> U128 {
         let target = account_id.unwrap_or_else(env::predecessor_account_id);
-        let current = self.storage_balances.get(&target).unwrap_or(0);
-        let updated = current + env::attached_deposit().as_yoctonear();
-        self.storage_balances.insert(&target, &updated);
-        U128(updated)
+        let deposit = env::attached_deposit().as_yoctonear();
+        let before = env::storage_usage();
+        let mut entry = self.storage_balances.get(&target).unwrap_or_default();
+        self.storage_balances.insert(&target, &entry);
+        let cost = Self::storage_cost(env::storage_usage().checked_sub(before).expect("storage shrink"));
+        let net = deposit.checked_sub(cost).expect("deposit below registration storage cost");
+        entry.available = entry.available.checked_add(net).expect("storage balance overflow");
+        entry.available.checked_add(entry.pending).expect("storage liability overflow");
+        self.storage_balances.insert(&target, &entry);
+        U128(entry.available)
     }
 
     pub fn storage_balance_of(&self, account_id: AccountId) -> U128 {
-        U128(self.storage_balances.get(&account_id).unwrap_or(0))
+        U128(self.storage_balances.get(&account_id).map(|e| e.available).unwrap_or(0))
     }
 
-    /// Withdraw the part of the prepaid balance that is not backing owned
-    /// tokens. v1 keeps this simple: free = balance - owned_slots * minimum.
     #[payable]
     pub fn storage_withdraw(&mut self, amount: Option<U128>) -> U128 {
+        require!(env::attached_deposit() == ONE_YOCTO, "attach exactly 1 yoctoNEAR");
         let account = env::predecessor_account_id();
-        let min = self.storage_minimum_balance();
-        let owned = u128::from(self
-            .tokens
-            .tokens_per_owner
-            .as_ref()
-            .and_then(|m| m.get(&account))
-            .map(|set| set.len())
-            .unwrap_or(0));
-        let used = owned * min;
-        let balance = self.storage_balances.get(&account).unwrap_or(0);
-        let free = balance.saturating_sub(used);
-        let take = match amount {
-            Some(a) => a.0.min(free),
-            None => free,
-        };
+        let mut entry = self.storage_balances.get(&account).expect("storage registration required");
+        require!(entry.pending == 0, "native payout pending");
+        let take = amount.map(|a| a.0.min(entry.available)).unwrap_or(entry.available);
         require!(take > 0, "nothing to withdraw");
-        self.storage_balances.insert(&account, &(balance - take));
-        Promise::new(account.clone()).transfer(NearToken::from_yoctonear(take)).detach();
-        U128(self.storage_balances.get(&account).unwrap_or(0))
+        entry.available = entry.available.checked_sub(take).expect("insufficient credit");
+        entry.pending = take;
+        entry.nonce = entry.nonce.checked_add(1).expect("native payout nonce overflow");
+        let nonce = entry.nonce;
+        self.storage_balances.insert(&account, &entry);
+        let args = near_sdk::serde_json::to_vec(&near_sdk::serde_json::json!({"account_id": account, "nonce": nonce})).unwrap();
+        Promise::new(account).transfer(NearToken::from_yoctonear(take)).then(
+            Promise::new(env::current_account_id()).function_call("storage_withdraw_callback", args, NearToken::from_yoctonear(0), PAYOUT_GAS)
+        ).detach();
+        U128(entry.available)
+    }
+
+    #[private]
+    pub fn storage_withdraw_callback(&mut self, account_id: AccountId, nonce: u64) {
+        let success = env::promise_result_checked(0, 0).is_ok();
+        self.settle_native_withdrawal(account_id, nonce, success);
+    }
+
+    fn settle_native_withdrawal(&mut self, account: AccountId, nonce: u64, success: bool) {
+        let mut entry = self.storage_balances.get(&account).expect("storage registration required");
+        require!(entry.pending > 0 && entry.nonce == nonce, "unknown native payout");
+        if !success {
+            entry.available = entry.available.checked_add(entry.pending).expect("storage balance overflow");
+        }
+        entry.pending = 0;
+        self.storage_balances.insert(&account, &entry);
     }
 
     // ==================================================================
