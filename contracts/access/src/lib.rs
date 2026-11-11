@@ -385,7 +385,7 @@ impl AccessContract {
         let mut tlist = self
             .trader_tokens
             .get(&trader_id)
-            .unwrap_or_else(|| Vector::new(b"tk".to_vec()));
+            .unwrap_or_else(|| Vector::new([b"tk".as_slice(), trader_id.as_bytes()].concat()));
         tlist.push(&token_id.clone());
         self.trader_tokens.insert(&trader_id, &tlist);
 
@@ -401,6 +401,7 @@ impl AccessContract {
 
     fn handle_renew(&mut self, payer: AccountId, amount: Balance, token_id: TokenId) -> U128 {
         let refund = U128(amount);
+        if self.pending_transfers.get(&token_id).is_some() { return refund; }
         let mut license = match self.licenses.get(&token_id) {
             Some(l) => l,
             None => return refund,
@@ -714,6 +715,7 @@ impl AccessContract {
     #[payable]
     pub fn claim_refund(&mut self, token_id: TokenId) -> PromiseOrValue<U128> {
         require!(env::attached_deposit() == ONE_YOCTO, "attach 1 yoctoNEAR");
+        require!(self.pending_transfers.get(&token_id).is_none(), "transfer pending");
         let caller = env::predecessor_account_id();
         let license = self.licenses.get(&token_id).expect("unknown token");
         let trader = self
@@ -996,6 +998,7 @@ use near_contract_standards::non_fungible_token::Token;
 
 #[near]
 impl NonFungibleTokenCore for AccessContract {
+    #[payable]
     fn nft_transfer(
         &mut self,
         receiver_id: AccountId,
@@ -1004,6 +1007,8 @@ impl NonFungibleTokenCore for AccessContract {
         _memo: Option<String>,
     ) {
         // v1 has no approvals/marketplace: only the current owner transfers.
+        require!(env::attached_deposit() == ONE_YOCTO, "requires exactly one yoctoNEAR");
+        require!(self.pending_transfers.get(&token_id).is_none(), "transfer pending");
         let sender = env::predecessor_account_id();
         let owner = self
             .tokens
@@ -1029,6 +1034,7 @@ impl NonFungibleTokenCore for AccessContract {
         .emit();
     }
 
+    #[payable]
     fn nft_transfer_call(
         &mut self,
         receiver_id: AccountId,
@@ -1037,6 +1043,8 @@ impl NonFungibleTokenCore for AccessContract {
         memo: Option<String>,
         msg: String,
     ) -> PromiseOrValue<bool> {
+        require!(env::attached_deposit() == ONE_YOCTO, "requires exactly one yoctoNEAR");
+        require!(self.pending_transfers.get(&token_id).is_none(), "transfer pending");
         let sender = env::predecessor_account_id();
         let owner = self
             .tokens
@@ -1118,7 +1126,7 @@ impl AccessContract {
     ) -> bool {
         // A missing/unreadable result counts as rejected (fail closed).
         let rejected = match env::promise_result_checked(0, u64::MAX as usize) {
-            Ok(value) => matches!(near_sdk::serde_json::from_slice::<bool>(&value), Ok(false)),
+            Ok(value) => near_sdk::serde_json::from_slice::<bool>(&value).unwrap_or(true),
             Err(_) => true,
         };
         self.resolve_transfer_outcome(previous_owner_id, receiver_id, token_id, rejected)

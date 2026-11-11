@@ -170,7 +170,7 @@ fn refund_claim_locks_transfers_until_settled() {
     assert_eq!(tranches[0].refunded, U128(51));
 
     // Transfer locked while refund pending.
-    set_ctx(BUYER, T0_MS + 6_000);
+    set_ctx_full(BUYER, T0_MS + 6_000, 1);
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         NonFungibleTokenCore::nft_transfer(
             &mut c,
@@ -185,7 +185,7 @@ fn refund_claim_locks_transfers_until_settled() {
     // Settle success: lock clears; refundable stays 0; second claim panics.
     set_ctx(0, T0_MS + 6_000);
     c.settle_payout("rf-1", true);
-    set_ctx(BUYER, T0_MS + 6_000);
+    set_ctx_full(BUYER, T0_MS + 6_000, 1);
     NonFungibleTokenCore::nft_transfer(
         &mut c,
         accounts(NEW_OWNER),
@@ -219,14 +219,14 @@ fn failed_refund_restores_and_unlocks() {
     assert_eq!(tranches[0].refunded, U128(0));
 
     // Lock cleared: transfer works again, and a re-claim is possible.
-    set_ctx(BUYER, T0_MS + 6_000);
+    set_ctx_full(BUYER, T0_MS + 6_000, 1);
     NonFungibleTokenCore::nft_transfer(&mut c, accounts(NEW_OWNER), tid.clone(), None, None);
 }
 
 #[test]
 fn direct_transfer_bumps_epoch_and_denies_non_owner() {
     let (mut c, tid) = setup_short_term();
-    set_ctx(BUYER, T0_MS + 1_000);
+    set_ctx_full(BUYER, T0_MS + 1_000, 1);
     NonFungibleTokenCore::nft_transfer(&mut c, accounts(NEW_OWNER), tid.clone(), None, None);
     let lic = c.get_license(tid.clone()).unwrap();
     assert_eq!(lic.owner_id, accounts(NEW_OWNER));
@@ -234,7 +234,7 @@ fn direct_transfer_bumps_epoch_and_denies_non_owner() {
     assert!(lic.access_active, "new owner has access while unexpired");
 
     // Old owner can no longer transfer (their credential epoch is stale).
-    set_ctx(BUYER, T0_MS + 1_000);
+    set_ctx_full(BUYER, T0_MS + 1_000, 1);
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         NonFungibleTokenCore::nft_transfer(&mut c, accounts(FT), tid.clone(), None, None)
     }));
@@ -245,7 +245,7 @@ fn direct_transfer_bumps_epoch_and_denies_non_owner() {
 fn rejected_transfer_call_rollback_bumps_epoch_again() {
     let (mut c, tid) = setup_short_term();
     // Simulate a tentative transfer to NEW_OWNER (as nft_transfer_call does).
-    set_ctx(BUYER, T0_MS + 1_000);
+    set_ctx_full(BUYER, T0_MS + 1_000, 1);
     c.tokens
         .internal_transfer_unguarded(&tid, &accounts(BUYER), &accounts(NEW_OWNER));
     c.bump_epoch(&tid);
@@ -261,4 +261,60 @@ fn rejected_transfer_call_rollback_bumps_epoch_again() {
     assert_eq!(lic.owner_id, accounts(BUYER), "rolled back to sender");
     assert_eq!(lic.access_epoch, 3, "rollback is a second transition");
     assert!(!c.pending_transfers.get(&tid).is_some(), "pending cleared");
+}
+
+fn callback_case(result: near_sdk::PromiseResult, returned: bool) {
+    let (mut c, tid) = setup_short_term();
+    set_ctx_full(BUYER, T0_MS + 1000, 1);
+    let _ = c.nft_transfer_call(accounts(NEW_OWNER), tid.clone(), None, None, "".into());
+    set_ctx_full(NEW_OWNER, T0_MS + 1000, 1);
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| c.nft_transfer(accounts(FT), tid.clone(), None, None))).is_err());
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| c.nft_transfer_call(accounts(FT), tid.clone(), None, None, "".into()))).is_err());
+    assert!(c.pending_transfers.get(&tid).is_some());
+    let mut b = VMContextBuilder::new();
+    b.current_account_id(accounts(0)).predecessor_account_id(accounts(0)).block_timestamp((T0_MS + 1000)*1_000_000);
+    testing_env!(b.build(), near_sdk::test_vm_config(), near_sdk::RuntimeFeesConfig::test(), Default::default(), vec![result]);
+    assert_eq!(c.nft_resolve_transfer(accounts(BUYER), accounts(NEW_OWNER), tid.clone()), !returned);
+    let lic = c.get_license(tid.clone()).unwrap();
+    assert_eq!(lic.owner_id, if returned { accounts(BUYER) } else { accounts(NEW_OWNER) });
+    assert_eq!(lic.access_epoch, if returned { 3 } else { 2 });
+    assert!(c.pending_transfers.get(&tid).is_none());
+}
+
+fn deposit_case(call: bool, deposit: u128) {
+        let (mut c, tid) = setup_short_term();
+        set_ctx_full(BUYER, T0_MS + 1000, deposit);
+        assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            if call { let _ = c.nft_transfer_call(accounts(NEW_OWNER), tid.clone(), None, None, "".into()); }
+            else { c.nft_transfer(accounts(NEW_OWNER), tid.clone(), None, None); }
+        })).is_err());
+        let lic = c.get_license(tid).unwrap();
+        assert_eq!(lic.owner_id, accounts(BUYER));
+        assert_eq!(lic.access_epoch, 1);
+}
+#[test] fn callback_true() { callback_case(near_sdk::PromiseResult::Successful(b"true".to_vec()), true); }
+#[test] fn callback_false() { callback_case(near_sdk::PromiseResult::Successful(b"false".to_vec()), false); }
+#[test] fn callback_bad() { callback_case(near_sdk::PromiseResult::Successful(b"bad".to_vec()), true); }
+#[test] fn callback_failed() { callback_case(near_sdk::PromiseResult::Failed, true); }
+#[test] fn transfer_zero() { deposit_case(false, 0); }
+#[test] fn transfer_extra() { deposit_case(false, 2); }
+#[test] fn call_zero() { deposit_case(true, 0); }
+#[test] fn call_extra() { deposit_case(true, 2); }
+
+#[test]
+fn pending_transfer_blocks_renewal_and_refund() {
+    let (mut c, tid) = setup_short_term();
+    set_ctx_full(BUYER, T0_MS + 1_000, 1);
+    let _ = c.nft_transfer_call(accounts(NEW_OWNER), tid.clone(), None, None, "".into());
+    let before = c.get_token_tranches(tid.clone()).len();
+    set_ctx(FT, T0_MS + 1_000);
+    let msg = near_sdk::serde_json::json!({"action":"renew", "token_id": tid}).to_string();
+    assert_eq!(c.ft_on_transfer(accounts(NEW_OWNER), U128(F_VEST_PRICE), msg), U128(F_VEST_PRICE));
+    assert_eq!(c.get_token_tranches(tid.clone()).len(), before);
+    set_ctx(MONITOR, T0_MS + 2_000);
+    c.terminate_service(accounts(TRADER), "test".into());
+    set_ctx_full(NEW_OWNER, T0_MS + 2_000, 1);
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| c.claim_refund(tid.clone()))).is_err());
+    assert!(c.pending_transfers.get(&tid).is_some());
+    assert!(c.refund_locks.get(&tid).is_none());
 }

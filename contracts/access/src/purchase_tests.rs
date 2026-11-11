@@ -305,3 +305,43 @@ fn storage_deposit_and_withdraw_account_correctly() {
     let remaining = c.storage_withdraw(None);
     assert_eq!(remaining, U128(min), "owned slot remains reserved");
 }
+
+#[test]
+fn trader_indices_and_earnings_are_independent() {
+    let mut c = fresh_contract();
+    set_ctx(OWNER, T0_NS);
+    c.set_plan(accounts(TRADER), 1, U128(101), 10_000);
+    c.set_plan(accounts(MONITOR), 1, U128(203), 10_000);
+    prep_storage(&mut c, BUYER, 1);
+    prep_storage(&mut c, 0, 1);
+    set_ctx(FT, T0_NS);
+    assert_eq!(c.ft_on_transfer(accounts(BUYER), U128(101), purchase_msg(TRADER, 1, "a")), U128(0));
+    assert_eq!(c.ft_on_transfer(accounts(0), U128(203), purchase_msg(MONITOR, 1, "b")), U128(0));
+    let a = format!("kf-{}-{}-a", accounts(TRADER), accounts(BUYER));
+    let b = format!("kf-{}-{}-b", accounts(MONITOR), accounts(0));
+    assert_eq!(c.trader_tokens.get(&accounts(TRADER)).unwrap().get(0), Some(a));
+    assert_eq!(c.trader_tokens.get(&accounts(MONITOR)).unwrap().get(0), Some(b));
+    set_ctx(FT, T0_NS + 5_000_000_000);
+    assert_eq!(c.claimable_of(accounts(TRADER)), U128(50));
+    assert_eq!(c.claimable_of(accounts(MONITOR)), U128(101));
+}
+
+#[test]
+fn transfer_releases_only_remaining_credit_not_consumed_mint_charge() {
+    use near_contract_standards::non_fungible_token::core::NonFungibleTokenCore;
+    let mut c = fresh_contract();
+    publish_default_plan(&mut c);
+    prep_storage(&mut c, BUYER, 3);
+    set_ctx(FT, T0_NS);
+    assert_eq!(c.ft_on_transfer(accounts(BUYER), U128(PRICE), purchase_msg(TRADER, 1, "backing")), U128(0));
+    let minimum = c.storage_minimum_balance();
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, 3 * NEAR - minimum);
+    set_ctx_with_deposit(BUYER, T0_NS, 1);
+    c.storage_withdraw(None);
+    let first_withdrawal = 3 * NEAR - 2 * minimum;
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, minimum);
+    c.nft_transfer(accounts(0), token_id_for(TRADER, "backing"), None, None);
+    c.storage_withdraw(None);
+    assert_eq!(c.storage_balance_of(accounts(BUYER)).0, 0);
+    assert_eq!(3 * NEAR - first_withdrawal - minimum, minimum, "consumed mint charge remains");
+}

@@ -1,0 +1,27 @@
+{
+  "classification": "PASS_LOCAL_SANDBOX_CANDIDATE_ONLY",
+  "review": "ACCEPTED_BOUNDED_TRANSFER_FIXES_AND_MEASUREMENTS_NOT_MAINNET_APPROVAL",
+  "network": "local-sandbox",
+  "protocol_version": 88,
+  "artifact": {
+    "path": "contracts/access/target/wasm32-unknown-unknown/release/access.wasm",
+    "bytes": 583370,
+    "sha256": "515190ff3c26cdb95fe74928db3a178ba27abf120187acb75434b751aa03f832",
+    "status": "CANDIDATE_REQUIRES_STORAGE_AND_BOUNDED_PROCESSING_FIXES"
+  },
+  "identity_dimensions": { "owner": 64, "monitor": 64, "trader": 64, "buyer": 64, "ft": 64, "contract": "sandbox development subaccount" },
+  "storage_bytes": { "before_deploy": 182, "after_deploy": 583552, "after_new": 584185, "after_plan": 584437, "after_storage_deposit": 584739, "after_purchase": 588457, "after_renew": 589033 },
+  "mainnet_rate_snapshot": { "block_height": 224104440, "storage_yocto_per_byte": "10000000000000000000", "gas_burn_price_yocto": "100000000", "min_gas_purchase_price_yocto": "1000000000" },
+  "storage_charge_review": { "mint_charge_yocto": "32720000000000000000000", "mint_charge_bytes_equivalent": 3272, "observed_first_mint_growth_bytes": 3718, "first_mint_gap_bytes": 446, "first_mint_gap_yocto": "4460000000000000000000", "renewal_growth_bytes": 576, "renewal_charge_yocto": "0", "renewal_growth_cost_yocto": "5760000000000000000000", "scope": "this fixture only, not an upper bound" },
+  "calls": [
+    { "action": "deploy", "transaction_gas_burnt": "4267324476630", "receipts_gas_burnt": "37962743591280", "total_gas_burnt": "42230068067910", "prepaid_call_tgas": null },
+    { "action": "new", "transaction_gas_burnt": "308589416358", "receipts_gas_burnt": "3234032378587", "total_gas_burnt": "3542621794945", "prepaid_call_tgas": 100 },
+    { "action": "set_plan", "transaction_gas_burnt": "314353750380", "receipts_gas_burnt": "2083910473209", "total_gas_burnt": "2398264223589", "prepaid_call_tgas": 100 },
+    { "action": "storage_deposit", "transaction_gas_burnt": "309680746310", "receipts_gas_burnt": "2163568805380", "total_gas_burnt": "2473249551690", "prepaid_call_tgas": 100 },
+    { "action": "direct_ft_receiver_purchase", "transaction_gas_burnt": "321124837910", "receipts_gas_burnt": "4568311395696", "total_gas_burnt": "4889436233606", "prepaid_call_tgas": 100 },
+    { "action": "direct_ft_receiver_renewal", "transaction_gas_burnt": "322316930785", "receipts_gas_burnt": "2916688909456", "total_gas_burnt": "3239005840241", "prepaid_call_tgas": 100 }
+  ],
+  "checks": { "host": "37/37 PASS_LOCAL", "legacy_sandbox": "3/3 PASS_LOCAL", "ft_integration": "1/1 PASS_LOCAL", "sizing": "1/1 PASS_LOCAL", "gas_sum_matches_framework": true, "mainnet_transactions": false, "shared_funder_used": false, "showstake_credentials_accessed": false },
+  "budget": { "unit": "yoctoNEAR", "code_storage_component": "5833700000000000000000000", "observed_after_plan_storage_stake_at_captured_rate": "5844370000000000000000000", "observed_after_purchase_and_renewal_storage_stake_at_captured_rate": "5890330000000000000000000", "deploy_burn_cost_at_captured_rate": "4223006806791000000000", "deploy_gas_purchase_equivalent_at_captured_rate": "42230068067910000000000", "provisional_total_native_envelope": "7300000000000000000000000", "final_funding_request": false },
+  "limitations": ["direct receiver call gas excludes originating FT and resolver", "no deployed NFT receiver callback fixture yet", "observed storage is input-dependent and is not a worst-case bound", "native storage accounting and bounded payout/callback remediation remain open", "no mainnet funding, deployment, signing or final reviewed Wasm approval"]
+}
