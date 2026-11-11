@@ -201,3 +201,15 @@ The mainnet-directed order is:
 5. only then claim live confidential copy-trading.
 
 This decision does not authorize mainnet deployment, real-asset transactions, paid services, wallet-key changes, or provider communication. Those actions require their existing explicit approvals and concrete account/signing route. Until the gates pass, all live claims remain `BLOCKED_EXTERNAL` or `NOT_RUN`, and testnet/local results remain labeled separately.
+
+## KF-D021 - Shared funding account, isolated Keyfolio roles, serial funding
+
+Date: 2026-11-12. Owner: user. Status: binding for mainnet preparation.
+
+The user selected `dc634c505ee6b86a9b615ed7ebef7fff6a235c3406163d35d4f0e60c576a27b5` as a shared funding-only NEAR mainnet account for two independent projects. Prepare separate Keyfolio contract and signer identities and compute gas, storage stake and initial balances from the final reviewed Wasm. Local preparation includes dedicated contract-deployment, operator and monitor keys. Local identities are not funded or deployed accounts.
+
+Never deploy to, upgrade, reinitialize, or otherwise change any ShowStake contract/account state. Never access ShowStake credentials. Keyfolio artifacts, keys, runtime configuration and liabilities stay isolated. Do not reuse the shared funder as the Keyfolio contract, operator, monitor, trader or follower.
+
+Do not send a transaction from the shared funder while another agent uses it. Before an authorized funding operation, require an explicit exclusive window or a shared single-writer queue recognized by every participating agent. Execute one transfer at a time, reconcile its final outcome, then refresh the actual access-key nonce and block reference for the next transaction. A project-local mutex alone is not proof that another agent or wallet has stopped. After funding, use separate Keyfolio signers so normal operations do not contend for the funder's nonce.
+
+Preparation does not approve the current contract candidate for mainnet. If no final reviewed Wasm is available, publish its exact byte count/hash and only a provisional budget, record review findings, and complete the local fixes/review/rebuild/Sandbox measurements before final funding. No funding, deployment, trader trade, customer launch or provider outreach was performed by this decision.

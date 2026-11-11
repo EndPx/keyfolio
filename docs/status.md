@@ -1,6 +1,10 @@
 # Keyfolio status
 
-Updated:2026-11-09, Asia/Jakarta. Branch main, public https://github.com/EndPx/keyfolio. This reconciliation supersedes contradictory progress statements in prior versions; Git history/evidence preserve original failures and reports. Full project is NOT complete.
+Updated: 2026-11-12, Asia/Jakarta. Branch main, public https://github.com/EndPx/keyfolio. Latest checkpoints below supersede historical task descriptions where explicit. Full project is NOT complete.
+
+## Current mainnet preparation checkpoint
+
+User selected a shared public mainnet funder and required isolated Keyfolio contract/signers plus serial funding (KF-D021). Dedicated contract, operator and monitor keypairs have been prepared locally under gitignored, access-restricted Keyfolio paths. No on-chain account activation, funding, signature or deployment occurred, and no ShowStake credentials/account state were accessed. Current Wasm is a 582,307-byte `kf-05c-wip` candidate, SHA-256 `80D1340207C7E14C0162C5D63D4374E58C58C0C67DB0890C18C1E4F825ADF9CF`; local locked release build and 26/26 host tests passed, but it is not final-reviewed. Transfer resolver/deposit, storage namespaces/growth and bounded processing findings prevent deployment approval. Read-only mainnet block 224104440 returned `UNKNOWN_ACCOUNT` for the selected funder; its usable balance is not verified. Candidate native planning envelope is 7.30 NEAR, not a final funding request. Evidence and precise assumptions: [mainnet preparation](evidence/KF-05/mainnet-preparation-2026-11-12.md), [public protocol snapshot and arithmetic](evidence/KF-05/mainnet-preparation-2026-11-12.json). Next: bounded contract safety corrections and same-artifact gas/storage measurements before final budget. Confidential history/provider and commercial-use gates remain open.
 
 ## Current assignment and authority
 
