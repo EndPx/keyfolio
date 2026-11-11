@@ -318,3 +318,51 @@ fn pending_transfer_blocks_renewal_and_refund() {
     assert!(c.pending_transfers.get(&tid).is_some());
     assert!(c.refund_locks.get(&tid).is_none());
 }
+
+#[test]
+fn ordinary_transfer_charges_sender_for_actual_positive_growth() {
+    let (mut c, tid) = setup_short_term();
+    purchase(&mut c, "ord-second", F_VEST_PRICE, 1);
+    set_ctx_full(BUYER, T0_MS + 1_000, 1);
+    let before = env::storage_usage();
+    let credit = c.storage_balance_of(accounts(BUYER)).0;
+    let other_credit = c.storage_balance_of(accounts(NEW_OWNER));
+    NonFungibleTokenCore::nft_transfer(&mut c, accounts(NEW_OWNER), tid.clone(), None, None);
+    let growth = env::storage_usage() - before;
+    assert!(growth > 0);
+    assert_eq!(credit - c.storage_balance_of(accounts(BUYER)).0,
+        u128::from(growth) * env::storage_byte_cost().as_yoctonear());
+    assert_eq!(other_credit, c.storage_balance_of(accounts(NEW_OWNER)));
+    let license = c.get_license(tid).unwrap();
+    assert_eq!(license.owner_id, accounts(NEW_OWNER));
+    assert_eq!(license.access_epoch, 2);
+}
+
+#[test]
+fn ordinary_transfer_with_no_net_growth_does_not_credit_sender() {
+    let (mut c, tid) = setup_short_term();
+    set_ctx_full(BUYER, T0_MS + 1_000, 1);
+    let before = env::storage_usage();
+    let credit = c.storage_balance_of(accounts(BUYER));
+    NonFungibleTokenCore::nft_transfer(&mut c, accounts(NEW_OWNER), tid, None, None);
+    println!("DIRECT_NONPOSITIVE before={before} after={}", env::storage_usage());
+    assert!(env::storage_usage() <= before);
+    assert_eq!(credit, c.storage_balance_of(accounts(BUYER)));
+}
+
+#[test]
+fn ordinary_transfer_requires_available_credit_for_growth() {
+    let (mut c, tid) = setup_short_term();
+    purchase(&mut c, "ord-second", F_VEST_PRICE, 1);
+    let mut entry = c.storage_balances.get(&accounts(BUYER)).unwrap();
+    entry.available = 0;
+    entry.pending = NEAR;
+    c.storage_balances.insert(&accounts(BUYER), &entry);
+    set_ctx_full(BUYER, T0_MS + 1_000, 1);
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        NonFungibleTokenCore::nft_transfer(&mut c, accounts(NEW_OWNER), tid, None, None);
+    }));
+    assert!(result.is_err());
+    assert_eq!(c.storage_balances.get(&accounts(BUYER)).unwrap().pending, NEAR);
+    // The host mock does not roll writes back; the Sandbox test checks rollback.
+}

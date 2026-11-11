@@ -1054,10 +1054,14 @@ impl NonFungibleTokenCore for AccessContract {
             self.refund_locks.get(&token_id).is_none(),
             "refund pending: transfers of this token are locked"
         );
+        let storage_before = env::storage_usage();
         self.tokens
             .internal_transfer_unguarded(&token_id, &sender, &receiver_id);
         // Every ownership transition changes the credential epoch (D06/E03).
         self.bump_epoch(&token_id);
+        if env::storage_usage() > storage_before {
+            self.charge_storage_growth(&sender, storage_before);
+        }
         NftTransfer {
             old_owner_id: &sender,
             new_owner_id: &receiver_id,
